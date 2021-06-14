@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quickblox_sdk/models/qb_user.dart';
 import 'package:quickblox_sdk/quickblox_sdk.dart';
-import 'package:quickblox_sdk_example/credentials.dart';
 import 'package:quickblox_sdk_example/utils/dialog_utils.dart';
 import 'package:quickblox_sdk_example/utils/snackbar_utils.dart';
 
@@ -64,8 +63,8 @@ class _UsersScreenState extends State<UsersScreen> {
     String login = "FLUTTER_USER_" + new DateTime.now().millisecond.toString();
     String password = "FlutterPassword";
     try {
-      QBUser user = await QB.users.createUser(login, password);
-      int userId = user.id;
+      QBUser? user = await QB.users.createUser(login, password);
+      int? userId = user!.id;
       SnackBarUtils.showResult(_scaffoldKey,
           "User was created: \n login: $login \n password: $password \n id: $userId");
     } on PlatformException catch (e) {
@@ -75,7 +74,7 @@ class _UsersScreenState extends State<UsersScreen> {
 
   Future<void> getUsers() async {
     try {
-      List<QBUser> userList = await QB.users.getUsers();
+      List<QBUser?> userList = await QB.users.getUsers();
       int count = userList.length;
       SnackBarUtils.showResult(
           _scaffoldKey, "Users were loaded. Count is: $count");
@@ -85,11 +84,11 @@ class _UsersScreenState extends State<UsersScreen> {
   }
 
   Future<void> getUsersByTag() async {
-    List<String> tags = List();
+    List<String> tags = [];
     tags.add("TestUserTag");
 
     try {
-      List<QBUser> userList = await QB.users.getUsersByTag(tags);
+      List<QBUser?> userList = await QB.users.getUsersByTag(tags);
       int count = userList.length;
       SnackBarUtils.showResult(
           _scaffoldKey, "Users were loaded. Count is: $count");
@@ -99,10 +98,10 @@ class _UsersScreenState extends State<UsersScreen> {
   }
 
   Future<void> updateUser() async {
-    String login = USER_LOGIN;
     try {
-      QBUser user = await QB.users.updateUser(login);
-      String email = user.email;
+      String websiteUrl = "www.google.com";
+      QBUser? user = await QB.users.updateUser(website: websiteUrl);
+      String? email = user!.email;
       SnackBarUtils.showResult(
           _scaffoldKey, "User with email $email was updated");
     } on PlatformException catch (e) {

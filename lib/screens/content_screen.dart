@@ -16,11 +16,11 @@ class ContentScreen extends StatefulWidget {
 class _ContentScreenState extends State<ContentScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  String _fileUrl;
-  String _fileUid;
-  int _fileId;
+  late String _fileUrl;
+  late String _fileUid;
+  late int _fileId;
 
-  StreamSubscription _uploadProgressSubscription;
+  late StreamSubscription? _uploadProgressSubscription;
 
   @override
   void dispose() {
@@ -118,7 +118,7 @@ class _ContentScreenState extends State<ContentScreen> {
 
   void unsubscribeUpload() async {
     if (_uploadProgressSubscription != null) {
-      _uploadProgressSubscription.cancel();
+      _uploadProgressSubscription!.cancel();
       _uploadProgressSubscription = null;
 
       await QB.content.unsubscribeUploadProgress(
@@ -136,8 +136,8 @@ class _ContentScreenState extends State<ContentScreen> {
 
   Future<void> upload() async {
     try {
-      QBFile file = await QB.content.upload(_fileUrl);
-      int id = file.id;
+      QBFile? file = await QB.content.upload(_fileUrl);
+      int? id = file!.id;
       SnackBarUtils.showResult(_scaffoldKey, "The file $id was uploaded");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -146,8 +146,8 @@ class _ContentScreenState extends State<ContentScreen> {
 
   Future<void> getInfo() async {
     try {
-      QBFile file = await QB.content.getInfo(_fileId);
-      int id = file.id;
+      QBFile? file = await QB.content.getInfo(_fileId);
+      int? id = file!.id;
       SnackBarUtils.showResult(_scaffoldKey, "The file $id was loaded");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -156,7 +156,7 @@ class _ContentScreenState extends State<ContentScreen> {
 
   Future<void> getPublicURL() async {
     try {
-      String url = await QB.content.getPublicURL(_fileUid);
+      String? url = await QB.content.getPublicURL(_fileUid);
       SnackBarUtils.showResult(_scaffoldKey, "Url $url was loaded");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -165,7 +165,7 @@ class _ContentScreenState extends State<ContentScreen> {
 
   Future<void> getPrivateURL() async {
     try {
-      String url = await QB.content.getPrivateURL(_fileUid);
+      String? url = await QB.content.getPrivateURL(_fileUid);
       SnackBarUtils.showResult(_scaffoldKey, "Url $url was loaded");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);

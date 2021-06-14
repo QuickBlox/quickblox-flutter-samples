@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:quickblox_sdk/models/qb_settings.dart';
 import 'package:quickblox_sdk/quickblox_sdk.dart';
 import 'package:quickblox_sdk_example/credentials.dart';
 import 'package:quickblox_sdk_example/utils/dialog_utils.dart';
@@ -85,9 +86,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> get() async {
     try {
-      Map<String, Object> map = await QB.settings.get();
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The credentials were loaded: \n $map");
+      QBSettings? settings = await QB.settings.get();
+      SnackBarUtils.showResult(_scaffoldKey, "The credentials were loaded");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }

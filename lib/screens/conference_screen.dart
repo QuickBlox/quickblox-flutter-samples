@@ -19,17 +19,17 @@ class ConferenceScreen extends StatefulWidget {
 class _ConferenceScreenState extends State<ConferenceScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  String _sessionId;
+  String? _sessionId;
 
-  ConferenceVideoViewController _localVideoViewController;
-  ConferenceVideoViewController _remoteVideoViewController;
+  ConferenceVideoViewController? _localVideoViewController;
+  ConferenceVideoViewController? _remoteVideoViewController;
 
-  StreamSubscription _videoTrackSubscription;
-  StreamSubscription _participantReceivedSubscription;
-  StreamSubscription _participantLeftSubscription;
-  StreamSubscription _errorSubscription;
-  StreamSubscription _conferenceClosedSubscription;
-  StreamSubscription _conferenceStateChangedSubscription;
+  StreamSubscription? _videoTrackSubscription;
+  StreamSubscription? _participantReceivedSubscription;
+  StreamSubscription? _participantLeftSubscription;
+  StreamSubscription? _errorSubscription;
+  StreamSubscription? _conferenceClosedSubscription;
+  StreamSubscription? _conferenceStateChangedSubscription;
 
   @override
   void dispose() {
@@ -69,7 +69,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
             child: Text('release'),
             color: Theme.of(context).primaryColor,
             textColor: Colors.white,
-            onPressed: releaseWebRTC,
+            onPressed: release,
           ),
           MaterialButton(
             minWidth: 200,
@@ -264,7 +264,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
     }
   }
 
-  Future<void> releaseWebRTC() async {
+  Future<void> release() async {
     try {
       await QB.conference.release();
       SnackBarUtils.showResult(_scaffoldKey, "Conference was released");
@@ -276,8 +276,8 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   Future<void> releaseVideoViews() async {
     try {
-      await _localVideoViewController.release();
-      await _remoteVideoViewController.release();
+      await _localVideoViewController!.release();
+      await _remoteVideoViewController!.release();
       SnackBarUtils.showResult(_scaffoldKey, "Video Views were released");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -286,10 +286,10 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   Future<void> create(int sessionType) async {
     try {
-      QBConferenceRTCSession session =
+      QBConferenceRTCSession? session =
           await QB.conference.create(DIALOG_ID, sessionType);
 
-      _sessionId = session.id;
+      _sessionId = session!.id;
 
       SnackBarUtils.showResult(
           _scaffoldKey, "The session with id \n $_sessionId \n was created");
@@ -300,10 +300,14 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   Future<void> joinAsPublisher(int sessionType) async {
     try {
-      List<int> participants = await QB.conference.joinAsPublisher(_sessionId);
-      for (int userId in participants) {
-        subscribeToParticipant(_sessionId, userId);
+      List<int?> participants =
+          await QB.conference.joinAsPublisher(_sessionId!);
+
+      for (int i = 0; i < participants.length; i++) {
+        int userId = participants[i]!;
+        subscribeToParticipant(_sessionId!, userId);
       }
+
       SnackBarUtils.showResult(_scaffoldKey,
           "Joined to session \n $_sessionId \n with participants $participants");
     } on PlatformException catch (e) {
@@ -313,10 +317,11 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   Future<void> getOnlineParticipants() async {
     try {
-      List<int> participants =
-          await QB.conference.getOnlineParticipants(_sessionId);
-      SnackBarUtils.showResult(_scaffoldKey,
-          "Session \n $_sessionId has participants \n $participants");
+      List<int?> participants =
+          await QB.conference.getOnlineParticipants(_sessionId!);
+
+      SnackBarUtils.showResult(
+          _scaffoldKey, "Online participants: \n $participants");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -332,9 +337,9 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
     }
   }
 
-  Future<void> unsubscribeToParticipant(String sessionId, int userId) async {
+  Future<void> unsubscribeFromParticipant(String sessionId, int userId) async {
     try {
-      await QB.conference.unsubscribeToParticipant(sessionId, userId);
+      await QB.conference.unsubscribeFromParticipant(sessionId, userId);
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed to $userId \n Session id: $sessionId");
     } on PlatformException catch (e) {
@@ -344,7 +349,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   Future<void> leaveSession() async {
     try {
-      await QB.conference.leave(_sessionId);
+      await QB.conference.leave(_sessionId!);
       SnackBarUtils.showResult(
           _scaffoldKey, "Session with id: \n $_sessionId \n was leaved");
     } on PlatformException catch (e) {
@@ -354,7 +359,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   Future<void> enableVideo(bool enable) async {
     try {
-      await QB.conference.enableVideo(_sessionId, enable: enable);
+      await QB.conference.enableVideo(_sessionId!, enable: enable);
       SnackBarUtils.showResult(_scaffoldKey, "The video was enable $enable");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -363,7 +368,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   Future<void> enableAudio(bool enable) async {
     try {
-      await QB.conference.enableAudio(_sessionId, enable: enable);
+      await QB.conference.enableAudio(_sessionId!, enable: enable);
       SnackBarUtils.showResult(_scaffoldKey, "The audio was enable $enable");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -372,7 +377,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   Future<void> switchCamera() async {
     try {
-      await QB.conference.switchCamera(_sessionId);
+      await QB.conference.switchCamera(_sessionId!);
       SnackBarUtils.showResult(_scaffoldKey, "Camera was switched");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -390,7 +395,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   Future<void> startRenderingLocal() async {
     try {
-      await _localVideoViewController.play(_sessionId, LOGGED_USER_ID);
+      await _localVideoViewController!.play(_sessionId!, LOGGED_USER_ID);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -398,7 +403,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   Future<void> startRenderingRemote(int opponentId) async {
     try {
-      await _remoteVideoViewController.play(_sessionId, opponentId);
+      await _remoteVideoViewController!.play(_sessionId!, opponentId);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -416,8 +421,8 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
     try {
       _videoTrackSubscription = await QB.conference.subscribeConferenceEvent(
           QBConferenceEventTypes.CONFERENCE_VIDEO_TRACK_RECEIVED, (data) {
-        Map<String, Object> payloadMap =
-            new Map<String, Object>.from(data["payload"]);
+        Map<dynamic, dynamic> payloadMap =
+            new Map<dynamic, dynamic>.from(data["payload"]);
 
         int opponentId = payloadMap["userId"];
 
@@ -443,7 +448,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   void unsubscribeVideoTrack() {
     if (_videoTrackSubscription != null) {
-      _videoTrackSubscription.cancel();
+      _videoTrackSubscription!.cancel();
       _videoTrackSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey,
@@ -490,7 +495,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   void unsubscribeParticipantReceived() {
     if (_participantReceivedSubscription != null) {
-      _participantReceivedSubscription.cancel();
+      _participantReceivedSubscription!.cancel();
       _participantReceivedSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey,
@@ -522,7 +527,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
         SnackBarUtils.showResult(_scaffoldKey,
             "Left participant: $userId \n Session id: $sessionId");
 
-        unsubscribeToParticipant(sessionId, userId);
+        unsubscribeFromParticipant(sessionId, userId);
       }, onErrorMethod: (error) {
         DialogUtils.showError(context, error);
       });
@@ -535,7 +540,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   void unsubscribeParticipantLeft() {
     if (_participantLeftSubscription != null) {
-      _participantLeftSubscription.cancel();
+      _participantLeftSubscription!.cancel();
       _participantLeftSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey,
@@ -577,7 +582,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   void unsubscribeErrors() {
     if (_errorSubscription != null) {
-      _errorSubscription.cancel();
+      _errorSubscription!.cancel();
       _errorSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBConferenceEventTypes.CONFERENCE_ERROR_RECEIVED);
@@ -616,7 +621,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   void unsubscribeConferenceClosed() {
     if (_conferenceClosedSubscription != null) {
-      _conferenceClosedSubscription.cancel();
+      _conferenceClosedSubscription!.cancel();
       _conferenceClosedSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBConferenceEventTypes.CONFERENCE_CLOSED);
@@ -677,7 +682,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
 
   void unsubscribeConferenceStateChanged() {
     if (_conferenceStateChangedSubscription != null) {
-      _conferenceStateChangedSubscription.cancel();
+      _conferenceStateChangedSubscription!.cancel();
       _conferenceStateChangedSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBConferenceEventTypes.CONFERENCE_STATE_CHANGED);

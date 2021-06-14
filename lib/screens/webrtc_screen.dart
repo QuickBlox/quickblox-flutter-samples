@@ -19,21 +19,21 @@ class WebRTCScreen extends StatefulWidget {
 class _WebRTCScreenState extends State<WebRTCScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  String _sessionId;
+  String? _sessionId;
 
-  RTCVideoViewController _localVideoViewController;
-  RTCVideoViewController _remoteVideoViewController;
+  RTCVideoViewController? _localVideoViewController;
+  RTCVideoViewController? _remoteVideoViewController;
 
   bool _videoCall = true;
 
-  StreamSubscription _callSubscription;
-  StreamSubscription _callEndSubscription;
-  StreamSubscription _rejectSubscription;
-  StreamSubscription _acceptSubscription;
-  StreamSubscription _hangUpSubscription;
-  StreamSubscription _videoTrackSubscription;
-  StreamSubscription _notAnswerSubscription;
-  StreamSubscription _peerConnectionSubscription;
+  StreamSubscription? _callSubscription;
+  StreamSubscription? _callEndSubscription;
+  StreamSubscription? _rejectSubscription;
+  StreamSubscription? _acceptSubscription;
+  StreamSubscription? _hangUpSubscription;
+  StreamSubscription? _videoTrackSubscription;
+  StreamSubscription? _notAnswerSubscription;
+  StreamSubscription? _peerConnectionSubscription;
 
   @override
   void dispose() {
@@ -319,8 +319,8 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> getRTCConfigs() async {
     try {
-      int answerInterval = await QB.rtcConfig.getAnswerTimeInterval();
-      int dialingInterval = await QB.rtcConfig.getDialingTimeInterval();
+      int? answerInterval = await QB.rtcConfig.getAnswerTimeInterval();
+      int? dialingInterval = await QB.rtcConfig.getDialingTimeInterval();
       SnackBarUtils.showResult(_scaffoldKey,
           "RTCConfig was loaded success  \n Answer Interval: $answerInterval \n Dialing Interval: $dialingInterval");
     } on PlatformException catch (e) {
@@ -340,8 +340,8 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> releaseVideoViews() async {
     try {
-      await _localVideoViewController.release();
-      await _remoteVideoViewController.release();
+      await _localVideoViewController!.release();
+      await _remoteVideoViewController!.release();
       SnackBarUtils.showResult(_scaffoldKey, "Video Views were released");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -350,8 +350,8 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> getSessionWebRTC() async {
     try {
-      QBRTCSession session = await QB.webrtc.getSession(_sessionId);
-      _sessionId = session.id;
+      QBRTCSession? session = await QB.webrtc.getSession(_sessionId!);
+      _sessionId = session!.id;
       SnackBarUtils.showResult(
           _scaffoldKey, "The session with id $_sessionId was loaded");
     } on PlatformException catch (e) {
@@ -361,8 +361,8 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> callWebRTC(int sessionType) async {
     try {
-      QBRTCSession session = await QB.webrtc.call(OPPONENTS_IDS, sessionType);
-      _sessionId = session.id;
+      QBRTCSession? session = await QB.webrtc.call(OPPONENTS_IDS, sessionType);
+      _sessionId = session!.id;
       SnackBarUtils.showResult(
           _scaffoldKey, "The call was initiated for session id: $_sessionId");
     } on PlatformException catch (e) {
@@ -372,8 +372,8 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> acceptWebRTC(String sessionId) async {
     try {
-      QBRTCSession session = await QB.webrtc.accept(sessionId);
-      String receivedSessionId = session.id;
+      QBRTCSession? session = await QB.webrtc.accept(sessionId);
+      String? receivedSessionId = session!.id;
       SnackBarUtils.showResult(
           _scaffoldKey, "Session with id: $receivedSessionId was accepted");
     } on PlatformException catch (e) {
@@ -383,9 +383,10 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> rejectWebRTC(String sessionId) async {
     try {
-      QBRTCSession session = await QB.webrtc.reject(sessionId);
+      QBRTCSession? session = await QB.webrtc.reject(sessionId);
+      String? id = session!.id;
       SnackBarUtils.showResult(
-          _scaffoldKey, "Session with id: $_sessionId was rejected");
+          _scaffoldKey, "Session with id: $id was rejected");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -393,9 +394,10 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> hangUpWebRTC() async {
     try {
-      QBRTCSession session = await QB.webrtc.hangUp(_sessionId);
+      QBRTCSession? session = await QB.webrtc.hangUp(_sessionId!);
+      String? id = session!.id;
       SnackBarUtils.showResult(
-          _scaffoldKey, "Session with id: $_sessionId was hang up");
+          _scaffoldKey, "Session with id: $id was hang up");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -403,7 +405,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> enableVideo(bool enable) async {
     try {
-      await QB.webrtc.enableVideo(_sessionId, enable: enable);
+      await QB.webrtc.enableVideo(_sessionId!, enable: enable);
       SnackBarUtils.showResult(_scaffoldKey, "The video was enable $enable");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -412,7 +414,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> enableAudio(bool enable) async {
     try {
-      await QB.webrtc.enableAudio(_sessionId, enable: enable);
+      await QB.webrtc.enableAudio(_sessionId!, enable: enable);
       SnackBarUtils.showResult(_scaffoldKey, "The audio was enable $enable");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -421,7 +423,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> switchCamera() async {
     try {
-      await QB.webrtc.switchCamera(_sessionId);
+      await QB.webrtc.switchCamera(_sessionId!);
       SnackBarUtils.showResult(_scaffoldKey, "Camera was switched");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -472,7 +474,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> startRenderingLocal() async {
     try {
-      await _localVideoViewController.play(_sessionId, LOGGED_USER_ID);
+      await _localVideoViewController!.play(_sessionId!, LOGGED_USER_ID);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -480,7 +482,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> startRenderingRemote(int opponentId) async {
     try {
-      await _remoteVideoViewController.play(_sessionId, opponentId);
+      await _remoteVideoViewController!.play(_sessionId!, opponentId);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -496,11 +498,11 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     try {
       _callSubscription =
           await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL, (data) {
-        Map<String, Object> payloadMap =
-            new Map<String, Object>.from(data["payload"]);
+        Map<dynamic, dynamic> payloadMap =
+            new Map<dynamic, dynamic>.from(data["payload"]);
 
-        Map<String, Object> sessionMap =
-            new Map<String, Object>.from(payloadMap["session"]);
+        Map<dynamic, dynamic> sessionMap =
+            new Map<dynamic, dynamic>.from(payloadMap["session"]);
 
         String sessionId = sessionMap["id"];
         int initiatorId = sessionMap["initiatorId"];
@@ -543,11 +545,11 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     try {
       _callEndSubscription =
           await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL_END, (data) {
-        Map<String, Object> payloadMap =
-            new Map<String, Object>.from(data["payload"]);
+        Map<dynamic, dynamic> payloadMap =
+            new Map<dynamic, dynamic>.from(data["payload"]);
 
-        Map<String, Object> sessionMap =
-            new Map<String, Object>.from(payloadMap["session"]);
+        Map<dynamic, dynamic> sessionMap =
+            new Map<dynamic, dynamic>.from(payloadMap["session"]);
 
         String sessionId = sessionMap["id"];
 
@@ -575,8 +577,8 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     try {
       _videoTrackSubscription = await QB.webrtc
           .subscribeRTCEvent(QBRTCEventTypes.RECEIVED_VIDEO_TRACK, (data) {
-        Map<String, Object> payloadMap =
-            new Map<String, Object>.from(data["payload"]);
+        Map<dynamic, dynamic> payloadMap =
+            new Map<dynamic, dynamic>.from(data["payload"]);
 
         int opponentId = payloadMap["userId"];
 
@@ -713,7 +715,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   void unsubscribeCall() {
     if (_callSubscription != null) {
-      _callSubscription.cancel();
+      _callSubscription!.cancel();
       _callSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.CALL);
@@ -725,7 +727,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   void unsubscribeCallEnd() {
     if (_callEndSubscription != null) {
-      _callEndSubscription.cancel();
+      _callEndSubscription!.cancel();
       _callEndSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.CALL_END);
@@ -737,7 +739,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   void unsubscribeReject() {
     if (_rejectSubscription != null) {
-      _rejectSubscription.cancel();
+      _rejectSubscription!.cancel();
       _rejectSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.REJECT);
@@ -749,7 +751,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   void unsubscribeAccept() {
     if (_acceptSubscription != null) {
-      _acceptSubscription.cancel();
+      _acceptSubscription!.cancel();
       _acceptSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.ACCEPT);
@@ -761,7 +763,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   void unsubscribeHangUp() {
     if (_hangUpSubscription != null) {
-      _hangUpSubscription.cancel();
+      _hangUpSubscription!.cancel();
       _hangUpSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.HANG_UP);
@@ -773,7 +775,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   void unsubscribeVideoTrack() {
     if (_videoTrackSubscription != null) {
-      _videoTrackSubscription.cancel();
+      _videoTrackSubscription!.cancel();
       _videoTrackSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
@@ -787,7 +789,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   void unsubscribeNotAnswer() {
     if (_notAnswerSubscription != null) {
-      _notAnswerSubscription.cancel();
+      _notAnswerSubscription!.cancel();
       _notAnswerSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.NOT_ANSWER);
@@ -799,7 +801,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   void unsubscribePeerConnection() {
     if (_peerConnectionSubscription != null) {
-      _peerConnectionSubscription.cancel();
+      _peerConnectionSubscription!.cancel();
       _peerConnectionSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);

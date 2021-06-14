@@ -16,6 +16,8 @@ class SubscriptionsScreen extends StatefulWidget {
 class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  int? _id;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,10 +59,16 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
     String deviceToken = "test";
 
     try {
-      List<QBSubscription> subscriptions =
+      List<QBSubscription?> subscriptions =
           await QB.subscriptions.create(deviceToken, QBPushChannelNames.GCM);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Push was created with token: $deviceToken");
+      int length = subscriptions.length;
+
+      if (length > 0) {
+        _id = subscriptions[0]!.id;
+      }
+
+      SnackBarUtils.showResult(_scaffoldKey,
+          "Push was created with token: $deviceToken, subscription length $length");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -68,7 +76,7 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
 
   Future<void> getPushSubscriptions() async {
     try {
-      List<QBSubscription> subscriptions = await QB.subscriptions.get();
+      List<QBSubscription?> subscriptions = await QB.subscriptions.get();
       int count = subscriptions.length;
       SnackBarUtils.showResult(
           _scaffoldKey, "Push Subscriptions were loaded: $count");
@@ -78,12 +86,10 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
   }
 
   Future<void> removePushSubscription() async {
-    int id = 0;
-
     try {
-      await QB.subscriptions.remove(id);
+      await QB.subscriptions.remove(_id!);
       SnackBarUtils.showResult(
-          _scaffoldKey, "Push subcription with id: $id was removed");
+          _scaffoldKey, "Push subcription with id: $_id was removed");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }

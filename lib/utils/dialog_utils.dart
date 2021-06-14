@@ -11,14 +11,16 @@ class DialogUtils {
   factory DialogUtils() => _instance;
 
   static void showError(BuildContext context, PlatformException exception) {
+    String? error =
+        exception.code.isNotEmpty ? exception.code : exception.message;
+
     showDialog(
         context: context,
         builder: (_) {
           return AlertDialog(
-            title: Text(
-                exception.code == "error" ? exception.message : exception.code),
+            title: Text(error != null ? error : "unexpected error"),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text("OK"),
                 onPressed: () => Navigator.pop(context),
               ),
@@ -34,7 +36,7 @@ class DialogUtils {
           return AlertDialog(
             title: Text(titleText),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: Text("OK"),
                 onPressed: () => Navigator.pop(context),
               ),
@@ -51,13 +53,13 @@ class DialogUtils {
           return AlertDialog(
             title: Text(titleText),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                   child: Text("Accept"),
                   onPressed: () {
                     accept(null);
                     Navigator.pop(context);
                   }),
-              FlatButton(
+              TextButton(
                   child: Text("Decline"),
                   onPressed: () {
                     decline(null);

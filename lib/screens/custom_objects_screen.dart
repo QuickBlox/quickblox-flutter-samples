@@ -17,6 +17,8 @@ class CustomObjectsScreen extends StatefulWidget {
 class _CustomObjectsScreenState extends State<CustomObjectsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
+  String? _id;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,32 +77,33 @@ class _CustomObjectsScreenState extends State<CustomObjectsScreen> {
     fieldsMap['testBoolean'] = true;
 
     try {
-      List<QBCustomObject> customObjectsList = await QB.data
+      List<QBCustomObject?> customObjectsList = await QB.data
           .create(className: CUSTOM_OBJECT_ClASS_NAME, fields: fieldsMap);
-      QBCustomObject customObject = customObjectsList[0];
-      String id = customObject.id;
-      SnackBarUtils.showResult(_scaffoldKey,
-          "The class $CUSTOM_OBJECT_ClASS_NAME  was created \n ID: $id");
+      QBCustomObject? customObject = customObjectsList[0];
+
+      if (customObject != null) {
+        _id = customObject.id;
+        SnackBarUtils.showResult(_scaffoldKey,
+            "The class $CUSTOM_OBJECT_ClASS_NAME  was created \n ID: $_id");
+      }
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
   Future<void> removeCustomObject() async {
-    List<String> ids = [""];
     try {
-      await QB.data.remove(CUSTOM_OBJECT_ClASS_NAME, ids);
-      SnackBarUtils.showResult(_scaffoldKey, "The ids: $ids were removed");
+      await QB.data.remove(CUSTOM_OBJECT_ClASS_NAME, [_id!]);
+      SnackBarUtils.showResult(_scaffoldKey, "The ids: $_id were removed");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
   Future<void> getCustomObjectsByIds() async {
-    List<String> ids = ["", ""];
     try {
-      List<QBCustomObject> customObjects =
-          await QB.data.getByIds(CUSTOM_OBJECT_ClASS_NAME, ids);
+      List<QBCustomObject?> customObjects =
+          await QB.data.getByIds(CUSTOM_OBJECT_ClASS_NAME, [_id!]);
       int size = customObjects.length;
       SnackBarUtils.showResult(
           _scaffoldKey, "Loaded custom objects size: $size");
@@ -111,7 +114,7 @@ class _CustomObjectsScreenState extends State<CustomObjectsScreen> {
 
   Future<void> getCustomObject() async {
     try {
-      List<QBCustomObject> customObjects =
+      List<QBCustomObject?> customObjects =
           await QB.data.get(CUSTOM_OBJECT_ClASS_NAME);
       int size = customObjects.length;
       SnackBarUtils.showResult(
@@ -122,12 +125,10 @@ class _CustomObjectsScreenState extends State<CustomObjectsScreen> {
   }
 
   Future<void> updateCustomObject() async {
-    String objectId = "";
-
     try {
-      QBCustomObject customObject =
-          await QB.data.update(CUSTOM_OBJECT_ClASS_NAME, id: objectId);
-      String id = customObject.id;
+      QBCustomObject? customObject =
+          await QB.data.update(CUSTOM_OBJECT_ClASS_NAME, id: _id!);
+      String? id = customObject!.id;
       SnackBarUtils.showResult(
           _scaffoldKey, "The custom object $id was updated");
     } on PlatformException catch (e) {

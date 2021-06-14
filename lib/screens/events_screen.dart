@@ -18,7 +18,7 @@ class EventsScreen extends StatefulWidget {
 class _EventsScreenState extends State<EventsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  int _eventId;
+  late int _id;
 
   @override
   Widget build(BuildContext context) {
@@ -80,12 +80,13 @@ class _EventsScreenState extends State<EventsScreen> {
     payload["message"] = "test";
 
     try {
-      List<QBEvent> qbEventsList = await QB.events
+      List<QBEvent?> qbEventsList = await QB.events
           .create(type, notificationEventType, senderId, payload);
 
-      for (QBEvent event in qbEventsList) {
-        int notificationId = event.id;
-        _eventId = event.id;
+      for (int i = 0; i < qbEventsList.length; i++) {
+        QBEvent? event = qbEventsList[i];
+        int? notificationId = event!.id;
+        _id = event.id!;
         SnackBarUtils.showResult(_scaffoldKey,
             "The Notification was created with id: $notificationId");
       }
@@ -95,11 +96,9 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   Future<void> updateNotification() async {
-    int id = 0;
-
     try {
-      QBEvent qbEvent = await QB.events.update(_eventId);
-      int notificationId = qbEvent.id;
+      QBEvent? qbEvent = await QB.events.update(_id, name: "test");
+      int? notificationId = qbEvent!.id;
       SnackBarUtils.showResult(_scaffoldKey,
           "The Notification with id: $notificationId was updated");
     } on PlatformException catch (e) {
@@ -108,23 +107,19 @@ class _EventsScreenState extends State<EventsScreen> {
   }
 
   Future<void> removeNotification() async {
-    int id = 0;
-
     try {
-      await QB.events.remove(id);
+      await QB.events.remove(_id);
       SnackBarUtils.showResult(
-          _scaffoldKey, "The notification with id: $id was removed");
+          _scaffoldKey, "The notification with id: $_id was removed");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
   Future<void> getByIdNotification() async {
-    int id = 0;
-
     try {
-      QBEvent qbEvent = await QB.events.getById(id);
-      int notificationId = qbEvent.id;
+      QBEvent? qbEvent = await QB.events.getById(_id);
+      int? notificationId = qbEvent!.id;
       SnackBarUtils.showResult(
           _scaffoldKey, "The notification with id: $notificationId was loaded");
     } on PlatformException catch (e) {
@@ -134,7 +129,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
   Future<void> getNotifications() async {
     try {
-      List<QBEvent> qbEventsList = await QB.events.get();
+      List<QBEvent?> qbEventsList = await QB.events.get();
       int count = qbEventsList.length;
       SnackBarUtils.showResult(
           _scaffoldKey, "Notifications were loaded. Count is: $count");

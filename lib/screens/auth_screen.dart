@@ -67,8 +67,10 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       QBLoginResult result = await QB.auth.login(USER_LOGIN, USER_PASSWORD);
 
-      QBUser qbUser = result.qbUser;
-      QBSession qbSession = result.qbSession;
+      QBUser? qbUser = result.qbUser;
+      QBSession? qbSession = result.qbSession;
+
+      qbSession!.applicationId = int.parse(APP_ID);
 
       DataHolder.getInstance().setSession(qbSession);
       DataHolder.getInstance().setUser(qbUser);
@@ -90,15 +92,21 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future<void> setSession() async {
     try {
-      QBSession qbSession = DataHolder.getInstance().getSession();
+      QBSession? savedSession = DataHolder.getInstance().getSession();
 
-      QBSession sessionResult = await QB.auth.setSession(qbSession);
+      if (savedSession == null) {
+        DialogUtils.showError(
+            context, PlatformException(code: "the session is null"));
+        return;
+      }
 
-      if (sessionResult != null) {
-        DataHolder.getInstance().setSession(sessionResult);
+      QBSession? session = await QB.auth.setSession(savedSession);
+      if (session != null) {
+        DataHolder.getInstance().setSession(session);
         SnackBarUtils.showResult(_scaffoldKey, "Set session success");
       } else {
-        DialogUtils.showError(context, Exception("The session in null"));
+        DialogUtils.showError(
+            context, PlatformException(code: "The session is null"));
       }
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -107,12 +115,13 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future<void> getSession() async {
     try {
-      QBSession session = await QB.auth.getSession();
+      QBSession? session = await QB.auth.getSession();
       if (session != null) {
         DataHolder.getInstance().setSession(session);
         SnackBarUtils.showResult(_scaffoldKey, "Get session success");
       } else {
-        DialogUtils.showError(context, Exception("The session in null"));
+        DialogUtils.showError(context,
+            PlatformException(message: "The session is null", code: ""));
       }
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
