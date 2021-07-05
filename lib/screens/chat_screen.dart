@@ -552,17 +552,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void unsubscribeNewMessage() {
-    // if (_newMessageSubscription != null) {
-    _newMessageSubscription!.cancel();
-    // _newMessageSubscription = null;
-    SnackBarUtils.showResult(
-        _scaffoldKey, "Unsubscribed: " + QBChatEvents.RECEIVED_NEW_MESSAGE);
-    /*} else {
+    if (_newMessageSubscription != null) {
+      _newMessageSubscription!.cancel();
+      _newMessageSubscription = null;
       SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.RECEIVED_NEW_MESSAGE);
-    }*/
+          _scaffoldKey, "Unsubscribed: " + QBChatEvents.RECEIVED_NEW_MESSAGE);
+    }
   }
 
   void unsubscribeSystemMessage() {
@@ -571,11 +566,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _systemMessageSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBChatEvents.RECEIVED_SYSTEM_MESSAGE);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.RECEIVED_SYSTEM_MESSAGE);
     }
   }
 
@@ -683,11 +673,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _deliveredMessageSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.MESSAGE_DELIVERED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.MESSAGE_DELIVERED);
     }
   }
 
@@ -697,9 +682,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _readMessageSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.MESSAGE_READ);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBChatEvents.MESSAGE_READ);
     }
   }
 
@@ -779,9 +761,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _userTypingSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.USER_IS_TYPING);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBChatEvents.USER_IS_TYPING);
     }
   }
 
@@ -791,11 +770,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _userStopTypingSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.USER_STOPPED_TYPING);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.USER_STOPPED_TYPING);
     }
   }
 
@@ -911,9 +885,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _connectedSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.CONNECTED);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBChatEvents.CONNECTED);
     }
   }
 
@@ -923,11 +894,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _connectionClosedSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.CONNECTION_CLOSED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.CONNECTION_CLOSED);
     }
   }
 
@@ -937,11 +903,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _reconnectionFailedSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.RECONNECTION_FAILED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.RECONNECTION_FAILED);
     }
   }
 
@@ -951,11 +912,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _reconnectionSuccessSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBChatEvents.RECONNECTION_SUCCESSFUL);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.RECONNECTION_SUCCESSFUL);
     }
   }
 }

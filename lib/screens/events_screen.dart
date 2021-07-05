@@ -18,7 +18,7 @@ class EventsScreen extends StatefulWidget {
 class _EventsScreenState extends State<EventsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  late int _id;
+  int? _id;
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +97,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
   Future<void> updateNotification() async {
     try {
-      QBEvent? qbEvent = await QB.events.update(_id, name: "test");
+      QBEvent? qbEvent = await QB.events.update(_id!, name: "test");
       int? notificationId = qbEvent!.id;
       SnackBarUtils.showResult(_scaffoldKey,
           "The Notification with id: $notificationId was updated");
@@ -108,7 +108,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
   Future<void> removeNotification() async {
     try {
-      await QB.events.remove(_id);
+      await QB.events.remove(_id!);
       SnackBarUtils.showResult(
           _scaffoldKey, "The notification with id: $_id was removed");
     } on PlatformException catch (e) {
@@ -118,7 +118,7 @@ class _EventsScreenState extends State<EventsScreen> {
 
   Future<void> getByIdNotification() async {
     try {
-      QBEvent? qbEvent = await QB.events.getById(_id);
+      QBEvent? qbEvent = await QB.events.getById(_id!);
       int? notificationId = qbEvent!.id;
       SnackBarUtils.showResult(
           _scaffoldKey, "The notification with id: $notificationId was loaded");
