@@ -17,7 +17,7 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +26,8 @@ class _AuthScreenState extends State<AuthScreen> {
         appBar: AppBar(
           title: const Text('Auth'),
           centerTitle: true,
-          leading: new IconButton(
-              icon: new Icon(Icons.arrow_back),
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop()),
         ),
         body: Center(

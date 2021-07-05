@@ -20,7 +20,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String? _dialogId;
   String? _messageId;
@@ -88,8 +88,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         appBar: AppBar(
           title: const Text('Chat'),
           centerTitle: true,
-          leading: new IconButton(
-              icon: new Icon(Icons.arrow_back),
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop()),
         ),
         body: Center(
@@ -405,8 +405,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void createDialog() async {
     List<int> occupantsIds = List.from(OPPONENTS_IDS);
-    String dialogName =
-        "FLUTTER_CHAT_" + new DateTime.now().millisecond.toString();
+    String dialogName = "FLUTTER_CHAT_" + DateTime.now().millisecond.toString();
     String dialogPhoto = "some photo url";
 
     int dialogType = QBChatDialogTypes.GROUP_CHAT;
@@ -459,7 +458,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void getOnlineUsers() async {
     try {
-      List<dynamic> onlineUsers = await QB.chat.getOnlineUsers(_dialogId!);
+      List<dynamic>? onlineUsers = await QB.chat.getOnlineUsers(_dialogId!);
+      if (onlineUsers == null) {
+        onlineUsers = [];
+      }
       SnackBarUtils.showResult(
           _scaffoldKey, "The online users are: $onlineUsers");
     } on PlatformException catch (e) {
@@ -501,14 +503,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     try {
       _newMessageSubscription = await QB.chat
           .subscribeChatEvent(QBChatEvents.RECEIVED_NEW_MESSAGE, (data) {
-        Map<dynamic, dynamic> map = new Map<dynamic, dynamic>.from(data);
+        Map<dynamic, dynamic> map = Map<dynamic, dynamic>.from(data);
 
         Map<dynamic, dynamic> payload =
-            new Map<dynamic, dynamic>.from(map["payload"]);
+            Map<dynamic, dynamic>.from(map["payload"]);
         _messageId = payload["id"] as String;
 
         SnackBarUtils.showResult(
-            _scaffoldKey, "Received new message: \n ${payload["body"]}");
+            _scaffoldKey, "Received message: \n ${payload["body"]}");
       }, onErrorMethod: (error) {
         DialogUtils.showError(context, error);
       });
@@ -530,10 +532,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     try {
       _systemMessageSubscription = await QB.chat
           .subscribeChatEvent(QBChatEvents.RECEIVED_SYSTEM_MESSAGE, (data) {
-        Map<dynamic, dynamic> map = new Map<dynamic, dynamic>.from(data);
+        Map<dynamic, dynamic> map = Map<dynamic, dynamic>.from(data);
 
         Map<dynamic, dynamic> payload =
-            new Map<dynamic, dynamic>.from(map["payload"]);
+            Map<dynamic, dynamic>.from(map["payload"]);
 
         _messageId = payload["id"];
 
@@ -549,17 +551,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void unsubscribeNewMessage() {
-    // if (_newMessageSubscription != null) {
-    _newMessageSubscription!.cancel();
-    // _newMessageSubscription = null;
-    SnackBarUtils.showResult(
-        _scaffoldKey, "Unsubscribed: " + QBChatEvents.RECEIVED_NEW_MESSAGE);
-    /*} else {
+    if (_newMessageSubscription != null) {
+      _newMessageSubscription!.cancel();
+      _newMessageSubscription = null;
       SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.RECEIVED_NEW_MESSAGE);
-    }*/
+          _scaffoldKey, "Unsubscribed: " + QBChatEvents.RECEIVED_NEW_MESSAGE);
+    }
   }
 
   void unsubscribeSystemMessage() {
@@ -568,16 +565,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _systemMessageSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBChatEvents.RECEIVED_SYSTEM_MESSAGE);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.RECEIVED_SYSTEM_MESSAGE);
     }
   }
 
   void markMessageRead() async {
-    QBMessage qbMessage = new QBMessage();
+    QBMessage qbMessage = QBMessage();
     qbMessage.dialogId = _dialogId;
     qbMessage.id = _messageId;
     qbMessage.senderId = LOGGED_USER_ID;
@@ -592,7 +584,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void markMessageDelivered() async {
-    QBMessage qbMessage = new QBMessage();
+    QBMessage qbMessage = QBMessage();
     qbMessage.dialogId = _dialogId;
     qbMessage.id = _messageId;
     qbMessage.senderId = LOGGED_USER_ID;
@@ -619,9 +611,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           .subscribeChatEvent(QBChatEvents.MESSAGE_DELIVERED, (data) {
         LinkedHashMap<dynamic, dynamic> messageStatusHashMap = data;
         Map<dynamic, dynamic> messageStatusMap =
-            new Map<dynamic, dynamic>.from(messageStatusHashMap);
+            Map<dynamic, dynamic>.from(messageStatusHashMap);
         Map<dynamic, dynamic> payloadMap =
-            new Map<dynamic, dynamic>.from(messageStatusHashMap["payload"]);
+            Map<dynamic, dynamic>.from(messageStatusHashMap["payload"]);
 
         String messageId = payloadMap["messageId"];
         int userId = payloadMap["userId"];
@@ -652,9 +644,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           await QB.chat.subscribeChatEvent(QBChatEvents.MESSAGE_READ, (data) {
         LinkedHashMap<dynamic, dynamic> messageStatusHashMap = data;
         Map<dynamic, dynamic> messageStatusMap =
-            new Map<dynamic, dynamic>.from(messageStatusHashMap);
+            Map<dynamic, dynamic>.from(messageStatusHashMap);
         Map<dynamic, dynamic> payloadMap =
-            new Map<dynamic, dynamic>.from(messageStatusHashMap["payload"]);
+            Map<dynamic, dynamic>.from(messageStatusHashMap["payload"]);
 
         String messageId = payloadMap["messageId"];
         int userId = payloadMap["userId"];
@@ -680,11 +672,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _deliveredMessageSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.MESSAGE_DELIVERED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.MESSAGE_DELIVERED);
     }
   }
 
@@ -694,9 +681,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _readMessageSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.MESSAGE_READ);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBChatEvents.MESSAGE_READ);
     }
   }
 
@@ -731,9 +715,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     try {
       _userTypingSubscription =
           await QB.chat.subscribeChatEvent(QBChatEvents.USER_IS_TYPING, (data) {
-        Map<dynamic, dynamic> map = new Map<String, dynamic>.from(data);
+        Map<dynamic, dynamic> map = Map<String, dynamic>.from(data);
         Map<dynamic, dynamic> payload =
-            new Map<String, dynamic>.from(map["payload"]);
+            Map<String, dynamic>.from(map["payload"]);
         int userId = payload["userId"];
         SnackBarUtils.showResult(
             _scaffoldKey, "Typing user: " + userId.toString());
@@ -756,9 +740,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     try {
       _userStopTypingSubscription = await QB.chat
           .subscribeChatEvent(QBChatEvents.USER_STOPPED_TYPING, (data) {
-        Map<dynamic, dynamic> map = new Map<String, dynamic>.from(data);
+        Map<dynamic, dynamic> map = Map<String, dynamic>.from(data);
         Map<dynamic, dynamic> payload =
-            new Map<String, dynamic>.from(map["payload"]);
+            Map<String, dynamic>.from(map["payload"]);
         int userId = payload["userId"];
         SnackBarUtils.showResult(
             _scaffoldKey, "Stopped typing user: " + userId.toString());
@@ -776,9 +760,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _userTypingSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.USER_IS_TYPING);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBChatEvents.USER_IS_TYPING);
     }
   }
 
@@ -788,11 +769,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _userStopTypingSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.USER_STOPPED_TYPING);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.USER_STOPPED_TYPING);
     }
   }
 
@@ -908,9 +884,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _connectedSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.CONNECTED);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBChatEvents.CONNECTED);
     }
   }
 
@@ -920,11 +893,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _connectionClosedSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.CONNECTION_CLOSED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.CONNECTION_CLOSED);
     }
   }
 
@@ -934,11 +902,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _reconnectionFailedSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBChatEvents.RECONNECTION_FAILED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.RECONNECTION_FAILED);
     }
   }
 
@@ -948,11 +911,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       _reconnectionSuccessSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBChatEvents.RECONNECTION_SUCCESSFUL);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBChatEvents.RECONNECTION_SUCCESSFUL);
     }
   }
 }

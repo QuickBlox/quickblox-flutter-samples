@@ -17,7 +17,7 @@ class WebRTCScreen extends StatefulWidget {
 }
 
 class _WebRTCScreenState extends State<WebRTCScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String? _sessionId;
 
@@ -56,8 +56,8 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
         appBar: AppBar(
           title: const Text('WebRTC'),
           centerTitle: true,
-          leading: new IconButton(
-              icon: new Icon(Icons.arrow_back),
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop()),
         ),
         body: Center(
@@ -249,37 +249,37 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
           ),
           Visibility(
             visible: _videoCall,
-            child: new OrientationBuilder(builder: (context, orientation) {
-              return new Container(
-                decoration: new BoxDecoration(color: Colors.white),
-                child: new Stack(
+            child: OrientationBuilder(builder: (context, orientation) {
+              return Container(
+                decoration: BoxDecoration(color: Colors.white),
+                child: Stack(
                   children: <Widget>[
-                    new Align(
+                    Align(
                       alignment: orientation == Orientation.landscape
                           ? const FractionalOffset(0.5, 0.1)
                           : const FractionalOffset(0.0, 0.5),
-                      child: new Container(
-                        margin: new EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+                      child: Container(
+                        margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
                         width: 160.0,
                         height: 160.0,
                         child: RTCVideoView(
                           onVideoViewCreated: _onLocalVideoViewCreated,
                         ),
-                        decoration: new BoxDecoration(color: Colors.black54),
+                        decoration: BoxDecoration(color: Colors.black54),
                       ),
                     ),
-                    new Align(
+                    Align(
                       alignment: orientation == Orientation.landscape
                           ? const FractionalOffset(0.5, 0.5)
                           : const FractionalOffset(1.0, 0.5),
-                      child: new Container(
-                        margin: new EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+                      child: Container(
+                        margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
                         width: 160.0,
                         height: 160.0,
                         child: RTCVideoView(
                           onVideoViewCreated: _onRemoteVideoViewCreated,
                         ),
-                        decoration: new BoxDecoration(color: Colors.black54),
+                        decoration: BoxDecoration(color: Colors.black54),
                       ),
                     ),
                   ],
@@ -499,10 +499,10 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _callSubscription =
           await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL, (data) {
         Map<dynamic, dynamic> payloadMap =
-            new Map<dynamic, dynamic>.from(data["payload"]);
+            Map<dynamic, dynamic>.from(data["payload"]);
 
         Map<dynamic, dynamic> sessionMap =
-            new Map<dynamic, dynamic>.from(payloadMap["session"]);
+            Map<dynamic, dynamic>.from(payloadMap["session"]);
 
         String sessionId = sessionMap["id"];
         int initiatorId = sessionMap["initiatorId"];
@@ -546,10 +546,10 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _callEndSubscription =
           await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL_END, (data) {
         Map<dynamic, dynamic> payloadMap =
-            new Map<dynamic, dynamic>.from(data["payload"]);
+            Map<dynamic, dynamic>.from(data["payload"]);
 
         Map<dynamic, dynamic> sessionMap =
-            new Map<dynamic, dynamic>.from(payloadMap["session"]);
+            Map<dynamic, dynamic>.from(payloadMap["session"]);
 
         String sessionId = sessionMap["id"];
 
@@ -578,7 +578,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _videoTrackSubscription = await QB.webrtc
           .subscribeRTCEvent(QBRTCEventTypes.RECEIVED_VIDEO_TRACK, (data) {
         Map<dynamic, dynamic> payloadMap =
-            new Map<dynamic, dynamic>.from(data["payload"]);
+            Map<dynamic, dynamic>.from(data["payload"]);
 
         int opponentId = payloadMap["userId"];
 
@@ -719,9 +719,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _callSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.CALL);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBRTCEventTypes.CALL);
     }
   }
 
@@ -731,9 +728,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _callEndSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.CALL_END);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBRTCEventTypes.CALL_END);
     }
   }
 
@@ -743,9 +737,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _rejectSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.REJECT);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBRTCEventTypes.REJECT);
     }
   }
 
@@ -755,9 +746,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _acceptSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.ACCEPT);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBRTCEventTypes.ACCEPT);
     }
   }
 
@@ -767,9 +755,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _hangUpSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.HANG_UP);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBRTCEventTypes.HANG_UP);
     }
   }
 
@@ -779,11 +764,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _videoTrackSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
     }
   }
 
@@ -793,9 +773,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _notAnswerSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.NOT_ANSWER);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBRTCEventTypes.NOT_ANSWER);
     }
   }
 
@@ -805,11 +782,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _peerConnectionSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
     }
   }
 }
