@@ -719,9 +719,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _callSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.CALL);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBRTCEventTypes.CALL);
     }
   }
 
@@ -731,9 +728,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _callEndSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.CALL_END);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBRTCEventTypes.CALL_END);
     }
   }
 
@@ -743,9 +737,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _rejectSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.REJECT);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBRTCEventTypes.REJECT);
     }
   }
 
@@ -755,9 +746,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _acceptSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.ACCEPT);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBRTCEventTypes.ACCEPT);
     }
   }
 
@@ -767,9 +755,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _hangUpSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.HANG_UP);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBRTCEventTypes.HANG_UP);
     }
   }
 
@@ -779,11 +764,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _videoTrackSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
     }
   }
 
@@ -793,9 +773,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _notAnswerSubscription = null;
       SnackBarUtils.showResult(
           _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.NOT_ANSWER);
-    } else {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You didn't have subscription for: " + QBRTCEventTypes.NOT_ANSWER);
     }
   }
 
@@ -805,11 +782,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _peerConnectionSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
     }
   }
 }

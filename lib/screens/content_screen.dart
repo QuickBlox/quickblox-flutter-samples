@@ -126,11 +126,6 @@ class _ContentScreenState extends State<ContentScreen> {
 
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBFileUploadProgress.FILE_UPLOAD_PROGRESS);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have a subscription for: " +
-              QBFileUploadProgress.FILE_UPLOAD_PROGRESS);
     }
   }
 

@@ -454,11 +454,6 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
           _scaffoldKey,
           "Unsubscribed: " +
               QBConferenceEventTypes.CONFERENCE_VIDEO_TRACK_RECEIVED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBConferenceEventTypes.CONFERENCE_VIDEO_TRACK_RECEIVED);
     }
   }
 
@@ -470,6 +465,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
               QBConferenceEventTypes.CONFERENCE_PARTICIPANT_RECEIVED);
       return;
     }
+
     try {
       _participantReceivedSubscription = await QB.conference
           .subscribeConferenceEvent(
@@ -501,11 +497,6 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
           _scaffoldKey,
           "Unsubscribed: " +
               QBConferenceEventTypes.CONFERENCE_PARTICIPANT_RECEIVED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBConferenceEventTypes.CONFERENCE_PARTICIPANT_RECEIVED);
     }
   }
 
@@ -517,6 +508,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
               QBConferenceEventTypes.CONFERENCE_PARTICIPANT_LEFT);
       return;
     }
+
     try {
       _participantLeftSubscription = await QB.conference
           .subscribeConferenceEvent(
@@ -546,11 +538,6 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
           _scaffoldKey,
           "Unsubscribed: " +
               QBConferenceEventTypes.CONFERENCE_PARTICIPANT_LEFT);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBConferenceEventTypes.CONFERENCE_PARTICIPANT_LEFT);
     }
   }
 
@@ -562,6 +549,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
               QBConferenceEventTypes.CONFERENCE_ERROR_RECEIVED);
       return;
     }
+
     try {
       _errorSubscription = await QB.conference.subscribeConferenceEvent(
           QBConferenceEventTypes.CONFERENCE_ERROR_RECEIVED, (data) {
@@ -586,11 +574,6 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
       _errorSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBConferenceEventTypes.CONFERENCE_ERROR_RECEIVED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBConferenceEventTypes.CONFERENCE_ERROR_RECEIVED);
     }
   }
 
@@ -602,6 +585,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
               QBConferenceEventTypes.CONFERENCE_CLOSED);
       return;
     }
+
     try {
       _conferenceClosedSubscription = await QB.conference
           .subscribeConferenceEvent(QBConferenceEventTypes.CONFERENCE_CLOSED,
@@ -625,11 +609,6 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
       _conferenceClosedSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBConferenceEventTypes.CONFERENCE_CLOSED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBConferenceEventTypes.CONFERENCE_CLOSED);
     }
   }
 
@@ -641,6 +620,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
               QBConferenceEventTypes.CONFERENCE_STATE_CHANGED);
       return;
     }
+
     try {
       _conferenceStateChangedSubscription = await QB.conference
           .subscribeConferenceEvent(
@@ -686,11 +666,6 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
       _conferenceStateChangedSubscription = null;
       SnackBarUtils.showResult(_scaffoldKey,
           "Unsubscribed: " + QBConferenceEventTypes.CONFERENCE_STATE_CHANGED);
-    } else {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You didn't have subscription for: " +
-              QBConferenceEventTypes.CONFERENCE_STATE_CHANGED);
     }
   }
 }
