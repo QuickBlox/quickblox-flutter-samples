@@ -16,7 +16,7 @@ class EventsScreen extends StatefulWidget {
 }
 
 class _EventsScreenState extends State<EventsScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   int? _id;
 
@@ -27,8 +27,8 @@ class _EventsScreenState extends State<EventsScreen> {
         appBar: AppBar(
           title: const Text('Events'),
           centerTitle: true,
-          leading: new IconButton(
-              icon: new Icon(Icons.arrow_back),
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop()),
         ),
         body: Center(
@@ -76,7 +76,7 @@ class _EventsScreenState extends State<EventsScreen> {
     String notificationEventType = QBNotificationTypes.PUSH;
     int senderId = LOGGED_USER_ID;
 
-    Map<String, Object> payload = new Map();
+    Map<String, Object> payload = Map();
     payload["message"] = "test";
 
     try {

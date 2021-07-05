@@ -13,7 +13,7 @@ class UsersScreen extends StatefulWidget {
 }
 
 class _UsersScreenState extends State<UsersScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +22,8 @@ class _UsersScreenState extends State<UsersScreen> {
         appBar: AppBar(
           title: const Text('Users'),
           centerTitle: true,
-          leading: new IconButton(
-              icon: new Icon(Icons.arrow_back),
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.of(context).pop()),
         ),
         body: Center(
@@ -60,7 +60,7 @@ class _UsersScreenState extends State<UsersScreen> {
   }
 
   Future<void> createUser() async {
-    String login = "FLUTTER_USER_" + new DateTime.now().millisecond.toString();
+    String login = "FLUTTER_USER_" + DateTime.now().millisecond.toString();
     String password = "FlutterPassword";
     try {
       QBUser? user = await QB.users.createUser(login, password);

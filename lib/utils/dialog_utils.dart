@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class DialogUtils {
-  static DialogUtils _instance = new DialogUtils.internal();
+  static DialogUtils _instance = DialogUtils.internal();
 
   DialogUtils.internal();
 
