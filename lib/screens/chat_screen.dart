@@ -459,7 +459,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void getOnlineUsers() async {
     try {
-      List<dynamic> onlineUsers = await QB.chat.getOnlineUsers(_dialogId!);
+      List<dynamic>? onlineUsers = await QB.chat.getOnlineUsers(_dialogId!);
+      if (onlineUsers == null) {
+        onlineUsers = [];
+      }
       SnackBarUtils.showResult(
           _scaffoldKey, "The online users are: $onlineUsers");
     } on PlatformException catch (e) {
