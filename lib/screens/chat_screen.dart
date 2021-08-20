@@ -474,8 +474,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         "Hello from flutter!" + "\n From user: " + LOGGED_USER_ID.toString();
 
     try {
-      await QB.chat
-          .sendMessage(_dialogId!, body: messageBody, saveToHistory: true);
+      Map<String, String> properties = Map();
+      properties["testProperty1"] = "testPropertyValue1";
+      properties["testProperty2"] = "testPropertyValue2";
+      properties["testProperty3"] = "testPropertyValue3";
+
+      await QB.chat.sendMessage(_dialogId!,
+          body: messageBody, saveToHistory: true, properties: properties);
       SnackBarUtils.showResult(
           _scaffoldKey, "The message was sent to dialog: $_dialogId");
     } on PlatformException catch (e) {

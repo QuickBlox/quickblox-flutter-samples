@@ -8,7 +8,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  quickblox_sdk: ^0.5.0-beta
+  quickblox_sdk: ^0.6.0-beta
 
 
   # The following adds the Cupertino Icons font to your application.
