@@ -3,6 +3,7 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:quickblox_sdk/models/qb_ice_server.dart';
 import 'package:quickblox_sdk/models/qb_rtc_session.dart';
 import 'package:quickblox_sdk/quickblox_sdk.dart';
 import 'package:quickblox_sdk/webrtc/constants.dart';
@@ -57,8 +58,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
           title: const Text('WebRTC'),
           centerTitle: true,
           leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop()),
+              icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()),
         ),
         body: Center(
             child: SingleChildScrollView(
@@ -240,9 +240,24 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
               onPressed: () {
                 getRTCConfigs();
               }),
+          MaterialButton(
+              minWidth: 200,
+              child: Text('set Ice Servers'),
+              color: Theme.of(context).primaryColor,
+              textColor: Colors.white,
+              onPressed: () {
+                setIceServers();
+              }),
+          MaterialButton(
+              minWidth: 200,
+              child: Text('get Ice Servers'),
+              color: Theme.of(context).primaryColor,
+              textColor: Colors.white,
+              onPressed: () {
+                getIceServers();
+              }),
           Container(
-            margin: EdgeInsets.only(
-                left: 20.0, right: 20.0, top: 20.0, bottom: 20.0),
+            margin: EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0, bottom: 20.0),
             height: 1,
             width: double.maxFinite,
             color: Colors.grey,
@@ -328,6 +343,47 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
+  Future<void> setIceServers() async {
+    List<QBIceServer> list = [];
+
+    list.add(_buildIceServer("stun:stun.l.google.com:19302", "", ""));
+    list.add(_buildIceServer(
+        "stun:turn.quickblox.com", "quickblox", "baccb97ba2d92d71e26eb9886da5f1e0"));
+    list.add(_buildIceServer("turn:turn.quickblox.com:3478?transport=tcp", "quickblox",
+        "baccb97ba2d92d71e26eb9886da5f1e0"));
+    list.add(_buildIceServer("turn:turn.quickblox.com:3478?transport=udp", "quickblox",
+        "baccb97ba2d92d71e26eb9886da5f1e0"));
+
+    try {
+      await QB.rtcConfig.setIceServers(list);
+
+      int amount = list.length;
+      SnackBarUtils.showResult(_scaffoldKey, "Ice Servers were set success. Amount: $amount");
+    } on PlatformException catch (e) {
+      DialogUtils.showError(context, e);
+    }
+  }
+
+  QBIceServer _buildIceServer(String url, String? userName, String? password) {
+    QBIceServer iceServer = QBIceServer();
+
+    iceServer.url = url;
+    iceServer.userName = userName;
+    iceServer.password = password;
+
+    return iceServer;
+  }
+
+  Future<void> getIceServers() async {
+    try {
+      List<QBIceServer> servers = await QB.rtcConfig.getIceServers();
+      int amount = servers.length;
+      SnackBarUtils.showResult(_scaffoldKey, "Ice Servers were loaded. Amount: $amount");
+    } on PlatformException catch (e) {
+      DialogUtils.showError(context, e);
+    }
+  }
+
   Future<void> releaseWebRTC() async {
     try {
       await QB.webrtc.release();
@@ -352,8 +408,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     try {
       QBRTCSession? session = await QB.webrtc.getSession(_sessionId!);
       _sessionId = session!.id;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The session with id $_sessionId was loaded");
+      SnackBarUtils.showResult(_scaffoldKey, "The session with id $_sessionId was loaded");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -363,8 +418,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     try {
       QBRTCSession? session = await QB.webrtc.call(OPPONENTS_IDS, sessionType);
       _sessionId = session!.id;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The call was initiated for session id: $_sessionId");
+      SnackBarUtils.showResult(_scaffoldKey, "The call was initiated for session id: $_sessionId");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -374,8 +428,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     try {
       QBRTCSession? session = await QB.webrtc.accept(sessionId);
       String? receivedSessionId = session!.id;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Session with id: $receivedSessionId was accepted");
+      SnackBarUtils.showResult(_scaffoldKey, "Session with id: $receivedSessionId was accepted");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -385,8 +438,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     try {
       QBRTCSession? session = await QB.webrtc.reject(sessionId);
       String? id = session!.id;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Session with id: $id was rejected");
+      SnackBarUtils.showResult(_scaffoldKey, "Session with id: $id was rejected");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -396,8 +448,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     try {
       QBRTCSession? session = await QB.webrtc.hangUp(_sessionId!);
       String? id = session!.id;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Session with id: $id was hang up");
+      SnackBarUtils.showResult(_scaffoldKey, "Session with id: $id was hang up");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -490,19 +541,16 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> subscribeCall() async {
     if (_callSubscription != null) {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You already have a subscription for: " + QBRTCEventTypes.CALL);
+      SnackBarUtils.showResult(
+          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.CALL);
       return;
     }
 
     try {
-      _callSubscription =
-          await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL, (data) {
-        Map<dynamic, dynamic> payloadMap =
-            Map<dynamic, dynamic>.from(data["payload"]);
+      _callSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL, (data) {
+        Map<dynamic, dynamic> payloadMap = Map<dynamic, dynamic>.from(data["payload"]);
 
-        Map<dynamic, dynamic> sessionMap =
-            Map<dynamic, dynamic>.from(payloadMap["session"]);
+        Map<dynamic, dynamic> sessionMap = Map<dynamic, dynamic>.from(payloadMap["session"]);
 
         String sessionId = sessionMap["id"];
         int initiatorId = sessionMap["initiatorId"];
@@ -519,8 +567,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
         _sessionId = sessionId;
         String messageCallType = _videoCall ? "Video" : "Audio";
 
-        DialogUtils.showTwoBtn(context,
-            "The INCOMING $messageCallType call from user $initiatorId",
+        DialogUtils.showTwoBtn(context, "The INCOMING $messageCallType call from user $initiatorId",
             (accept) {
           acceptWebRTC(sessionId);
         }, (decline) {
@@ -529,8 +576,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       }, onErrorMethod: (error) {
         DialogUtils.showError(context, error);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBRTCEventTypes.CALL);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.CALL);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -538,28 +584,23 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> subscribeCallEnd() async {
     if (_callEndSubscription != null) {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You already have a subscription for: " + QBRTCEventTypes.CALL_END);
+      SnackBarUtils.showResult(
+          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.CALL_END);
       return;
     }
     try {
-      _callEndSubscription =
-          await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL_END, (data) {
-        Map<dynamic, dynamic> payloadMap =
-            Map<dynamic, dynamic>.from(data["payload"]);
+      _callEndSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL_END, (data) {
+        Map<dynamic, dynamic> payloadMap = Map<dynamic, dynamic>.from(data["payload"]);
 
-        Map<dynamic, dynamic> sessionMap =
-            Map<dynamic, dynamic>.from(payloadMap["session"]);
+        Map<dynamic, dynamic> sessionMap = Map<dynamic, dynamic>.from(payloadMap["session"]);
 
         String sessionId = sessionMap["id"];
 
-        SnackBarUtils.showResult(
-            _scaffoldKey, "The call with sessionId $sessionId was ended");
+        SnackBarUtils.showResult(_scaffoldKey, "The call with sessionId $sessionId was ended");
       }, onErrorMethod: (error) {
         DialogUtils.showError(context, error);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBRTCEventTypes.CALL_END);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.CALL_END);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -567,18 +608,15 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> subscribeVideoTrack() async {
     if (_videoTrackSubscription != null) {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You already have a subscription for:" +
-              QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
+      SnackBarUtils.showResult(_scaffoldKey,
+          "You already have a subscription for:" + QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
       return;
     }
 
     try {
-      _videoTrackSubscription = await QB.webrtc
-          .subscribeRTCEvent(QBRTCEventTypes.RECEIVED_VIDEO_TRACK, (data) {
-        Map<dynamic, dynamic> payloadMap =
-            Map<dynamic, dynamic>.from(data["payload"]);
+      _videoTrackSubscription =
+          await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.RECEIVED_VIDEO_TRACK, (data) {
+        Map<dynamic, dynamic> payloadMap = Map<dynamic, dynamic>.from(data["payload"]);
 
         int opponentId = payloadMap["userId"];
 
@@ -590,8 +628,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       }, onErrorMethod: (error) {
         DialogUtils.showError(context, error);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -599,8 +636,8 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> subscribeNotAnswer() async {
     if (_notAnswerSubscription != null) {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You already have a subscription for: " + QBRTCEventTypes.NOT_ANSWER);
+      SnackBarUtils.showResult(
+          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.NOT_ANSWER);
       return;
     }
 
@@ -612,8 +649,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       }, onErrorMethod: (error) {
         DialogUtils.showError(context, error);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBRTCEventTypes.NOT_ANSWER);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.NOT_ANSWER);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -621,22 +657,19 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> subscribeReject() async {
     if (_rejectSubscription != null) {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You already have a subscription for: " + QBRTCEventTypes.REJECT);
+      SnackBarUtils.showResult(
+          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.REJECT);
       return;
     }
 
     try {
-      _rejectSubscription =
-          await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.REJECT, (data) {
+      _rejectSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.REJECT, (data) {
         int userId = data["payload"]["userId"];
-        DialogUtils.showOneBtn(
-            context, "The user $userId was rejected your call");
+        DialogUtils.showOneBtn(context, "The user $userId was rejected your call");
       }, onErrorMethod: (error) {
         DialogUtils.showError(context, error);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBRTCEventTypes.REJECT);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.REJECT);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -644,22 +677,19 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> subscribeAccept() async {
     if (_acceptSubscription != null) {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You already have a subscription for: " + QBRTCEventTypes.ACCEPT);
+      SnackBarUtils.showResult(
+          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.ACCEPT);
       return;
     }
 
     try {
-      _acceptSubscription =
-          await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.ACCEPT, (data) {
+      _acceptSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.ACCEPT, (data) {
         int userId = data["payload"]["userId"];
-        SnackBarUtils.showResult(
-            _scaffoldKey, "The user $userId was accepted your call");
+        SnackBarUtils.showResult(_scaffoldKey, "The user $userId was accepted your call");
       }, onErrorMethod: (error) {
         DialogUtils.showError(context, error);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBRTCEventTypes.ACCEPT);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.ACCEPT);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -667,21 +697,19 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> subscribeHangUp() async {
     if (_hangUpSubscription != null) {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You already have a subscription for: " + QBRTCEventTypes.HANG_UP);
+      SnackBarUtils.showResult(
+          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.HANG_UP);
       return;
     }
 
     try {
-      _hangUpSubscription =
-          await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.HANG_UP, (data) {
+      _hangUpSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.HANG_UP, (data) {
         int userId = data["payload"]["userId"];
         DialogUtils.showOneBtn(context, "the user $userId is hang up");
       }, onErrorMethod: (error) {
         DialogUtils.showError(context, error);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBRTCEventTypes.HANG_UP);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.HANG_UP);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -689,25 +717,22 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
   Future<void> subscribePeerConnection() async {
     if (_peerConnectionSubscription != null) {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You already have a subscription for: " +
-              QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
+      SnackBarUtils.showResult(_scaffoldKey,
+          "You already have a subscription for: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
       return;
     }
 
     try {
-      _peerConnectionSubscription = await QB.webrtc.subscribeRTCEvent(
-          QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED, (data) {
+      _peerConnectionSubscription =
+          await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED, (data) {
         int state = data["payload"]["state"];
         String parsedState = parseState(state);
-        SnackBarUtils.showResult(
-            _scaffoldKey, "PeerConnection state: $parsedState");
+        SnackBarUtils.showResult(_scaffoldKey, "PeerConnection state: $parsedState");
       }, onErrorMethod: (error) {
         DialogUtils.showError(context, error);
       });
-      SnackBarUtils.showResult(_scaffoldKey,
-          "Subscribed: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
+      SnackBarUtils.showResult(
+          _scaffoldKey, "Subscribed: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -717,8 +742,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     if (_callSubscription != null) {
       _callSubscription!.cancel();
       _callSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.CALL);
+      SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.CALL);
     }
   }
 
@@ -726,8 +750,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     if (_callEndSubscription != null) {
       _callEndSubscription!.cancel();
       _callEndSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.CALL_END);
+      SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.CALL_END);
     }
   }
 
@@ -735,8 +758,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     if (_rejectSubscription != null) {
       _rejectSubscription!.cancel();
       _rejectSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.REJECT);
+      SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.REJECT);
     }
   }
 
@@ -744,8 +766,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     if (_acceptSubscription != null) {
       _acceptSubscription!.cancel();
       _acceptSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.ACCEPT);
+      SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.ACCEPT);
     }
   }
 
@@ -753,8 +774,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     if (_hangUpSubscription != null) {
       _hangUpSubscription!.cancel();
       _hangUpSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.HANG_UP);
+      SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.HANG_UP);
     }
   }
 
@@ -762,8 +782,8 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     if (_videoTrackSubscription != null) {
       _videoTrackSubscription!.cancel();
       _videoTrackSubscription = null;
-      SnackBarUtils.showResult(_scaffoldKey,
-          "Unsubscribed: " + QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
+      SnackBarUtils.showResult(
+          _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
     }
   }
 
@@ -771,8 +791,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     if (_notAnswerSubscription != null) {
       _notAnswerSubscription!.cancel();
       _notAnswerSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.NOT_ANSWER);
+      SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.NOT_ANSWER);
     }
   }
 
@@ -780,8 +799,8 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     if (_peerConnectionSubscription != null) {
       _peerConnectionSubscription!.cancel();
       _peerConnectionSubscription = null;
-      SnackBarUtils.showResult(_scaffoldKey,
-          "Unsubscribed: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
+      SnackBarUtils.showResult(
+          _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
     }
   }
 }
