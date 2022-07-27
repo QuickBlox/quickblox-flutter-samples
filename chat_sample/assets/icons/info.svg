@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>ABD55D10-240A-41CE-B199-C5A5C2080F73</title>
+    <g id="Cross-platform" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Login" transform="translate(-336.000000, -28.000000)">
+            <g id="Nav-bar" transform="translate(0.000000, 20.000000)">
+                <g id="Right" transform="translate(255.000000, 0.000000)">
+                    <g id="Info" transform="translate(81.000000, 8.000000)">
+                        <rect id="Rectangle-Copy" fill-rule="nonzero" x="0" y="0" width="28" height="28"></rect>
+                        <circle id="Oval" stroke="#FFFFFF" stroke-width="2" cx="14" cy="14" r="13"></circle>
+                        <rect id="Rectangle" stroke="#FFFFFF" stroke-width="2" fill-opacity="0.35" fill="#FFFFFF" x="12" y="13" width="4" height="9" rx="2"></rect>
+                        <rect id="Rectangle-Copy-2" stroke="#FFFFFF" stroke-width="2" fill-opacity="0.35" fill="#FFFFFF" transform="translate(14.000000, 8.000000) scale(1, -1) translate(-14.000000, -8.000000) " x="12" y="6" width="4" height="4" rx="2"></rect>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
