@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>9CA38B8B-7E57-4D63-9DF3-2CC3E925CD9F</title>
+    <g id="Cross-platform" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Chats" transform="translate(-336.000000, -28.000000)">
+            <g id="Nav-bar" transform="translate(0.000000, 20.000000)">
+                <g id="Right" transform="translate(255.000000, 0.000000)">
+                    <g id="add" transform="translate(81.000000, 8.000000)">
+                        <rect id="Rectangle-Copy" fill-rule="nonzero" x="0" y="0" width="28" height="28"></rect>
+                        <path d="M14,6 C15.1045695,6 16,6.8954305 16,8 L16,12 L20,12 C21.1045695,12 22,12.8954305 22,14 C22,15.1045695 21.1045695,16 20,16 L16,16 L16,20 C16,21.1045695 15.1045695,22 14,22 C12.8954305,22 12,21.1045695 12,20 L12,16 L8,16 C6.8954305,16 6,15.1045695 6,14 C6,12.8954305 6.8954305,12 8,12 L12,11.999 L12,8 C12,6.8954305 12.8954305,6 14,6 Z" id="Combined-Shape" stroke="#FFFFFF" stroke-width="2" fill-opacity="0.35" fill="#FFFFFF"></path>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
