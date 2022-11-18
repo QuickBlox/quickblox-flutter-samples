@@ -11,21 +11,15 @@ class DialogUtils {
   factory DialogUtils() => _instance;
 
   static void showError(BuildContext context, PlatformException exception) {
-    String? error =
-        exception.code.isNotEmpty ? exception.code : exception.message;
-
     showDialog(
         context: context,
         builder: (_) {
-          return AlertDialog(
-            title: Text(error != null ? error : "unexpected error"),
-            actions: <Widget>[
-              TextButton(
-                child: Text("OK"),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          );
+          String? error = exception.code.isNotEmpty ? exception.code : exception.message;
+          String errorMessage = error != null ? error : "unexpected error";
+
+          return AlertDialog(title: Text(errorMessage), actions: <Widget>[
+            _buildButton("OK", context, null),
+          ]);
         });
   }
 
@@ -33,40 +27,29 @@ class DialogUtils {
     showDialog(
         context: context,
         builder: (_) {
-          return AlertDialog(
-            title: Text(titleText),
-            actions: <Widget>[
-              TextButton(
-                child: Text("OK"),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          );
+          return AlertDialog(title: Text(titleText), actions: <Widget>[
+            _buildButton("OK", context, null),
+          ]);
         });
   }
 
-  static void showTwoBtn(BuildContext context, String titleText,
-      Function accept, Function decline) {
+  static void showTwoBtn(BuildContext context, String titleText, Function? accept, Function? decline) {
     showDialog(
         context: context,
         builder: (_) {
-          return AlertDialog(
-            title: Text(titleText),
-            actions: <Widget>[
-              TextButton(
-                  child: Text("Accept"),
-                  onPressed: () {
-                    accept(null);
-                    Navigator.pop(context);
-                  }),
-              TextButton(
-                  child: Text("Decline"),
-                  onPressed: () {
-                    decline(null);
-                    Navigator.pop(context);
-                  }),
-            ],
-          );
+          return AlertDialog(title: Text(titleText), actions: <Widget>[
+            _buildButton("Accept", context, () => accept?.call()),
+            _buildButton("Decline", context, () => decline?.call())
+          ]);
+        });
+  }
+
+  static Widget _buildButton(String title, BuildContext context, Function? callback) {
+    return TextButton(
+        child: Text(title),
+        onPressed: () {
+          callback?.call();
+          Navigator.pop(context);
         });
   }
 }
