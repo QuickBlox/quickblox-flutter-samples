@@ -19,44 +19,30 @@ class _UsersScreenState extends State<UsersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: const Text('Users'),
-          centerTitle: true,
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop()),
-        ),
+        appBar: _buildAppBar(),
         body: Center(
             child: Column(children: [
-          MaterialButton(
-            minWidth: 200,
-            child: Text('create user'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: createUser,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('get users'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: getUsers,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('get users by tag'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: getUsersByTag,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('update user'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: updateUser,
-          )
+          _buildButton('create user', () => createUser()),
+          _buildButton('get users', () => getUsers()),
+          _buildButton('get users by tag', () => getUsersByTag()),
+          _buildButton('update user', () => updateUser())
         ])));
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+        title: const Text('Users'),
+        centerTitle: true,
+        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
+  }
+
+  Widget _buildButton(String title, Function? callback) {
+    return MaterialButton(
+        minWidth: 200,
+        child: Text(title),
+        color: Theme.of(context).primaryColor,
+        textColor: Colors.white,
+        onPressed: () => callback?.call());
   }
 
   Future<void> createUser() async {
@@ -65,8 +51,8 @@ class _UsersScreenState extends State<UsersScreen> {
     try {
       QBUser? user = await QB.users.createUser(login, password);
       int? userId = user!.id;
-      SnackBarUtils.showResult(_scaffoldKey,
-          "User was created: \n login: $login \n password: $password \n id: $userId");
+      SnackBarUtils.showResult(
+          _scaffoldKey, "User was created: \n login: $login \n password: $password \n id: $userId");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -76,8 +62,7 @@ class _UsersScreenState extends State<UsersScreen> {
     try {
       List<QBUser?> userList = await QB.users.getUsers();
       int count = userList.length;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Users were loaded. Count is: $count");
+      SnackBarUtils.showResult(_scaffoldKey, "Users were loaded. Count is: $count");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -90,8 +75,7 @@ class _UsersScreenState extends State<UsersScreen> {
     try {
       List<QBUser?> userList = await QB.users.getUsersByTag(tags);
       int count = userList.length;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Users were loaded. Count is: $count");
+      SnackBarUtils.showResult(_scaffoldKey, "Users were loaded. Count is: $count");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -102,8 +86,7 @@ class _UsersScreenState extends State<UsersScreen> {
       String websiteUrl = "www.google.com";
       QBUser? user = await QB.users.updateUser(website: websiteUrl);
       String? email = user!.email;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "User with email $email was updated");
+      SnackBarUtils.showResult(_scaffoldKey, "User with email $email was updated");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }

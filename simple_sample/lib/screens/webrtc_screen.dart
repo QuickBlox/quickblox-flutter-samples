@@ -25,7 +25,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
   RTCVideoViewController? _localVideoViewController;
   RTCVideoViewController? _remoteVideoViewController;
 
-  bool _videoCall = true;
+  bool _isVideoCall = true;
 
   StreamSubscription? _callSubscription;
   StreamSubscription? _callEndSubscription;
@@ -35,285 +35,101 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
   StreamSubscription? _videoTrackSubscription;
   StreamSubscription? _notAnswerSubscription;
   StreamSubscription? _peerConnectionSubscription;
+  StreamSubscription? _reconnectionSubscription;
 
   @override
   void dispose() {
     super.dispose();
-
-    unsubscribeCall();
-    unsubscribeCallEnd();
-    unsubscribeReject();
-    unsubscribeAccept();
-    unsubscribeHangUp();
-    unsubscribeVideoTrack();
-    unsubscribeNotAnswer();
-    unsubscribePeerConnection();
+    _unsubscribeEvents();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: const Text('WebRTC'),
-          centerTitle: true,
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()),
-        ),
+        appBar: _buildAppBar(),
         body: Center(
             child: SingleChildScrollView(
                 child: Column(children: [
-          MaterialButton(
-            minWidth: 200,
-            child: Text('init'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: init,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('release'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: releaseWebRTC,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('release Video Views'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: releaseVideoViews,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('get session'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: getSessionWebRTC,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('call Video'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: () {
-              callWebRTC(QBRTCSessionTypes.VIDEO);
-              setState(() {
-                _videoCall = true;
-              });
-            },
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('call Audio'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: () {
-              callWebRTC(QBRTCSessionTypes.AUDIO);
-              setState(() {
-                _videoCall = false;
-              });
-            },
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('hangUp'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: hangUpWebRTC,
-          ),
-          MaterialButton(
-              minWidth: 200,
-              child: Text('disable video'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              onPressed: () {
-                enableVideo(false);
-              }),
-          MaterialButton(
-              minWidth: 200,
-              child: Text('enable video'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              onPressed: () {
-                enableVideo(true);
-              }),
-          MaterialButton(
-              minWidth: 200,
-              child: Text('disable audio'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              onPressed: () {
-                enableAudio(false);
-              }),
-          MaterialButton(
-              minWidth: 200,
-              child: Text('enable audio'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              onPressed: () {
-                enableAudio(true);
-              }),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('switch camera'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: switchCamera,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('Mirror camera'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: mirrorCamera,
-          ),
+          _buildButton('init WebRTC', () => _initWebRTC()),
+          _buildButton('release WebRTC', () => _releaseWebRTC()),
+          _buildButton('release Video Views', () => _releaseVideoViews()),
+          _buildButton('get WebRTC session', () => _getCallSession()),
+          _buildButton('make video call', () {
+            _createCall(QBRTCSessionTypes.VIDEO);
+            setState(() => _isVideoCall = true);
+          }),
+          _buildButton('make audio call', () {
+            _createCall(QBRTCSessionTypes.AUDIO);
+            setState(() => _isVideoCall = false);
+          }),
+          _buildButton('hangup call', () => _hangUpCall()),
+          _buildButton('disable video', () => _enableVideo(false)),
+          _buildButton('enable video', () => _enableVideo(true)),
+          _buildButton('disable audio', () => _enableAudio(false)),
+          _buildButton('enable audio', () => _enableAudio(true)),
+          _buildButton('switch camera', () => _switchCamera()),
+          _buildButton('mirror camera', () => _mirrorCamera()),
+          _buildButton('switch audio to LOUDSPEAKER', () => _switchAudioOutput(QBRTCAudioOutputTypes.LOUDSPEAKER)),
+          _buildButton('switch audio to EARSPEAKER', () => _switchAudioOutput(QBRTCAudioOutputTypes.EARSPEAKER)),
+          _buildButton('subscribe events', () => _subscribeEvents()),
+          _buildButton('unsubscribe events', () => _unsubscribeEvents()),
+          _buildButton('set RTCConfigs', () => _setRTCConfigs()),
+          _buildButton('get RTCConfigs', () => _getRTCConfigs()),
+          _buildButton('set Ice Servers', () => _setIceServers()),
+          _buildButton('get Ice Servers', () => _getIceServers()),
+          _buildButton('set reconnection time interval', () => _setReconnectionTimeInterval()),
+          _buildButton('get reconnection time interval', () => _getReconnectionTimeInterval()),
+          Container(margin: EdgeInsets.all(20.0), height: 1, width: double.maxFinite, color: Colors.grey),
           Visibility(
-            visible: !_videoCall,
-            child: MaterialButton(
-              minWidth: 200,
-              child: Text('Switch audio to LOUDSPEAKER'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              onPressed: () {
-                switchAudioOutput(QBRTCAudioOutputTypes.LOUDSPEAKER);
-              },
-            ),
-          ),
-          Visibility(
-            visible: !_videoCall,
-            child: MaterialButton(
-              minWidth: 200,
-              child: Text('Switch audio to EARSPEAKER'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              onPressed: () {
-                switchAudioOutput(QBRTCAudioOutputTypes.EARSPEAKER);
-              },
-            ),
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('subscribe RTC events'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: () {
-              subscribeCall();
-              subscribeCallEnd();
-              subscribeReject();
-              subscribeAccept();
-              subscribeHangUp();
-              subscribeVideoTrack();
-              subscribeNotAnswer();
-              subscribePeerConnection();
-            },
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('unsubscribe RTC events'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: () {
-              unsubscribeCall();
-              unsubscribeCallEnd();
-              unsubscribeReject();
-              unsubscribeAccept();
-              unsubscribeHangUp();
-              unsubscribeVideoTrack();
-              unsubscribeNotAnswer();
-              unsubscribePeerConnection();
-            },
-          ),
-          MaterialButton(
-              minWidth: 200,
-              child: Text('set RTCConfigs'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              onPressed: () {
-                setRTCConfigs();
-              }),
-          MaterialButton(
-              minWidth: 200,
-              child: Text('get RTCConfigs'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              onPressed: () {
-                getRTCConfigs();
-              }),
-          MaterialButton(
-              minWidth: 200,
-              child: Text('set Ice Servers'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              onPressed: () {
-                setIceServers();
-              }),
-          MaterialButton(
-              minWidth: 200,
-              child: Text('get Ice Servers'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              onPressed: () {
-                getIceServers();
-              }),
-          Container(
-            margin: EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0, bottom: 20.0),
-            height: 1,
-            width: double.maxFinite,
-            color: Colors.grey,
-          ),
-          Visibility(
-            visible: _videoCall,
-            child: OrientationBuilder(builder: (context, orientation) {
-              return Container(
-                decoration: BoxDecoration(color: Colors.white),
-                child: Stack(
-                  children: <Widget>[
-                    Align(
-                      alignment: orientation == Orientation.landscape
-                          ? const FractionalOffset(0.5, 0.1)
-                          : const FractionalOffset(0.0, 0.5),
-                      child: Container(
-                        margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-                        width: 160.0,
-                        height: 160.0,
-                        child: RTCVideoView(
-                          onVideoViewCreated: _onLocalVideoViewCreated,
-                        ),
-                        decoration: BoxDecoration(color: Colors.black54),
-                      ),
-                    ),
-                    Align(
-                      alignment: orientation == Orientation.landscape
-                          ? const FractionalOffset(0.5, 0.5)
-                          : const FractionalOffset(1.0, 0.5),
-                      child: Container(
-                        margin: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-                        width: 160.0,
-                        height: 160.0,
-                        child: RTCVideoView(
-                          onVideoViewCreated: _onRemoteVideoViewCreated,
-                        ),
-                        decoration: BoxDecoration(color: Colors.black54),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ),
+              visible: _isVideoCall,
+              child: OrientationBuilder(builder: (context, orientation) {
+                Alignment localVideoViewAlignment = orientation == Orientation.landscape
+                    ? const FractionalOffset(0.5, 0.1)
+                    : const FractionalOffset(0.0, 0.5);
+
+                Alignment remoteVideoViewAlignment = orientation == Orientation.landscape
+                    ? const FractionalOffset(0.5, 0.5)
+                    : const FractionalOffset(1.0, 0.5);
+
+                return Container(
+                    decoration: BoxDecoration(color: Colors.white),
+                    child: Stack(children: <Widget>[
+                      _buildVideoView(localVideoViewAlignment, (controller) => _localVideoViewController = controller),
+                      _buildVideoView(remoteVideoViewAlignment, (controller) => _remoteVideoViewController = controller)
+                    ]));
+              }))
         ]))));
   }
 
-  void _onLocalVideoViewCreated(RTCVideoViewController controller) {
-    _localVideoViewController = controller;
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+        title: const Text('WebRTC'),
+        centerTitle: true,
+        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
   }
 
-  void _onRemoteVideoViewCreated(RTCVideoViewController controller) {
-    _remoteVideoViewController = controller;
+  Widget _buildButton(String title, Function? callback) {
+    return MaterialButton(
+        minWidth: 200,
+        child: Text(title),
+        color: Theme.of(context).primaryColor,
+        textColor: Colors.white,
+        onPressed: () => callback?.call());
   }
 
-  Future<void> init() async {
+  Widget _buildVideoView(Alignment alignment, Function(RTCVideoViewController) callback) {
+    return Align(
+        alignment: alignment,
+        child: Container(
+            margin: EdgeInsets.all(10.0),
+            width: 160.0,
+            height: 160.0,
+            child: RTCVideoView(onVideoViewCreated: callback),
+            decoration: BoxDecoration(color: Colors.black54)));
+  }
+
+  Future<void> _initWebRTC() async {
     try {
       await QB.webrtc.init();
       SnackBarUtils.showResult(_scaffoldKey, "WebRTC was initiated");
@@ -322,7 +138,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> setRTCConfigs() async {
+  Future<void> _setRTCConfigs() async {
     try {
       await QB.rtcConfig.setAnswerTimeInterval(10);
       await QB.rtcConfig.setDialingTimeInterval(15);
@@ -332,7 +148,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> getRTCConfigs() async {
+  Future<void> _getRTCConfigs() async {
     try {
       int? answerInterval = await QB.rtcConfig.getAnswerTimeInterval();
       int? dialingInterval = await QB.rtcConfig.getDialingTimeInterval();
@@ -343,22 +159,39 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> setIceServers() async {
-    List<QBIceServer> list = [];
+  Future<void> _setIceServers() async {
+    List<QBIceServer> servers = [];
 
-    list.add(_buildIceServer("stun:stun.l.google.com:19302", "", ""));
-    list.add(_buildIceServer(
-        "stun:turn.quickblox.com", "quickblox", "baccb97ba2d92d71e26eb9886da5f1e0"));
-    list.add(_buildIceServer("turn:turn.quickblox.com:3478?transport=tcp", "quickblox",
-        "baccb97ba2d92d71e26eb9886da5f1e0"));
-    list.add(_buildIceServer("turn:turn.quickblox.com:3478?transport=udp", "quickblox",
-        "baccb97ba2d92d71e26eb9886da5f1e0"));
+    servers.add(_buildIceServer("stun:stun.l.google.com:19302", "", ""));
+    servers.add(_buildIceServer("stun:turn.quickblox.com", "quickblox", "baccb97ba2d92d71e26eb9886da5f1e0"));
+    servers.add(
+        _buildIceServer("turn:turn.quickblox.com:3478?transport=tcp", "quickblox", "baccb97ba2d92d71e26eb9886da5f1e0"));
+    servers.add(
+        _buildIceServer("turn:turn.quickblox.com:3478?transport=udp", "quickblox", "baccb97ba2d92d71e26eb9886da5f1e0"));
 
     try {
-      await QB.rtcConfig.setIceServers(list);
+      await QB.rtcConfig.setIceServers(servers);
+      SnackBarUtils.showResult(_scaffoldKey, "Ice Servers were set success. Amount: ${servers.length}");
+    } on PlatformException catch (e) {
+      DialogUtils.showError(context, e);
+    }
+  }
 
-      int amount = list.length;
-      SnackBarUtils.showResult(_scaffoldKey, "Ice Servers were set success. Amount: $amount");
+  Future<void> _setReconnectionTimeInterval() async {
+    try {
+      var INTERVAL_60_SECONDS = 60;
+      await QB.rtcConfig.setReconnectionTimeInterval(INTERVAL_60_SECONDS);
+      SnackBarUtils.showResult(
+          _scaffoldKey, "Reconnection time interval was set success. Amount: $INTERVAL_60_SECONDS");
+    } on PlatformException catch (e) {
+      DialogUtils.showError(context, e);
+    }
+  }
+
+  Future<void> _getReconnectionTimeInterval() async {
+    try {
+      int? reconnectionInterval = await QB.rtcConfig.getReconnectionTimeInterval();
+      SnackBarUtils.showResult(_scaffoldKey, "Reconnection time interval was loaded. Amount: \n$reconnectionInterval");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -374,87 +207,83 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     return iceServer;
   }
 
-  Future<void> getIceServers() async {
+  Future<void> _getIceServers() async {
     try {
       List<QBIceServer> servers = await QB.rtcConfig.getIceServers();
-      int amount = servers.length;
-      SnackBarUtils.showResult(_scaffoldKey, "Ice Servers were loaded. Amount: $amount");
+      SnackBarUtils.showResult(_scaffoldKey, "Ice Servers were loaded. Amount: ${servers.length}");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
-  Future<void> releaseWebRTC() async {
+  Future<void> _releaseWebRTC() async {
     try {
       await QB.webrtc.release();
-      SnackBarUtils.showResult(_scaffoldKey, "WebRTC was released");
       _sessionId = null;
+      SnackBarUtils.showResult(_scaffoldKey, "WebRTC was released");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
-  Future<void> releaseVideoViews() async {
+  Future<void> _releaseVideoViews() async {
     try {
-      await _localVideoViewController!.release();
-      await _remoteVideoViewController!.release();
+      await _localVideoViewController?.release();
+      await _remoteVideoViewController?.release();
       SnackBarUtils.showResult(_scaffoldKey, "Video Views were released");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
-  Future<void> getSessionWebRTC() async {
+  Future<void> _getCallSession() async {
     try {
       QBRTCSession? session = await QB.webrtc.getSession(_sessionId!);
-      _sessionId = session!.id;
+      _sessionId = session?.id;
       SnackBarUtils.showResult(_scaffoldKey, "The session with id $_sessionId was loaded");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
-  Future<void> callWebRTC(int sessionType) async {
+  Future<void> _createCall(int sessionType) async {
     try {
       QBRTCSession? session = await QB.webrtc.call(OPPONENTS_IDS, sessionType);
-      _sessionId = session!.id;
+      _sessionId = session?.id;
       SnackBarUtils.showResult(_scaffoldKey, "The call was initiated for session id: $_sessionId");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
-  Future<void> acceptWebRTC(String sessionId) async {
+  Future<void> _acceptCall(String sessionId) async {
     try {
       QBRTCSession? session = await QB.webrtc.accept(sessionId);
-      String? receivedSessionId = session!.id;
-      SnackBarUtils.showResult(_scaffoldKey, "Session with id: $receivedSessionId was accepted");
+      SnackBarUtils.showResult(_scaffoldKey, "Session with id: ${session?.id} was accepted");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
-  Future<void> rejectWebRTC(String sessionId) async {
+  Future<void> _rejectCall(String sessionId) async {
     try {
       QBRTCSession? session = await QB.webrtc.reject(sessionId);
-      String? id = session!.id;
-      SnackBarUtils.showResult(_scaffoldKey, "Session with id: $id was rejected");
+      SnackBarUtils.showResult(_scaffoldKey, "Session with id: ${session?.id} was rejected");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
-  Future<void> hangUpWebRTC() async {
+  Future<void> _hangUpCall() async {
     try {
       QBRTCSession? session = await QB.webrtc.hangUp(_sessionId!);
-      String? id = session!.id;
-      SnackBarUtils.showResult(_scaffoldKey, "Session with id: $id was hang up");
+      SnackBarUtils.showResult(_scaffoldKey, "Session with id: ${session?.id} was hang up");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
-  Future<void> enableVideo(bool enable) async {
+  Future<void> _enableVideo(bool enable) async {
     try {
       await QB.webrtc.enableVideo(_sessionId!, enable: enable);
       SnackBarUtils.showResult(_scaffoldKey, "The video was enable $enable");
@@ -463,7 +292,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> enableAudio(bool enable) async {
+  Future<void> _enableAudio(bool enable) async {
     try {
       await QB.webrtc.enableAudio(_sessionId!, enable: enable);
       SnackBarUtils.showResult(_scaffoldKey, "The audio was enable $enable");
@@ -472,7 +301,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> switchCamera() async {
+  Future<void> _switchCamera() async {
     try {
       await QB.webrtc.switchCamera(_sessionId!);
       SnackBarUtils.showResult(_scaffoldKey, "Camera was switched");
@@ -481,7 +310,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> mirrorCamera() async {
+  Future<void> _mirrorCamera() async {
     try {
       await QB.webrtc.mirrorCamera(LOGGED_USER_ID, true);
       SnackBarUtils.showResult(_scaffoldKey, "Camera was switched");
@@ -490,7 +319,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> switchAudioOutput(int output) async {
+  Future<void> _switchAudioOutput(int output) async {
     try {
       await QB.webrtc.switchAudioOutput(output);
       SnackBarUtils.showResult(_scaffoldKey, "Audio was switched");
@@ -499,7 +328,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  String parseState(int state) {
+  String _parsePeerConnectionState(int state) {
     String parsedState = "";
 
     switch (state) {
@@ -523,58 +352,70 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     return parsedState;
   }
 
-  Future<void> startRenderingLocal() async {
+  String _parseReconnectionState(int state) {
+    String parsedState = "";
+
+    switch (state) {
+      case QBRTCReconnectionStates.RECONNECTING:
+        parsedState = "RECONNECTING";
+        break;
+      case QBRTCReconnectionStates.RECONNECTED:
+        parsedState = "RECONNECTED";
+        break;
+      case QBRTCReconnectionStates.FAILED:
+        parsedState = "FAILED";
+        break;
+    }
+
+    return parsedState;
+  }
+
+  Future<void> _startRenderingLocal() async {
     try {
-      await _localVideoViewController!.play(_sessionId!, LOGGED_USER_ID);
+      await _localVideoViewController?.play(_sessionId!, LOGGED_USER_ID);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
-  Future<void> startRenderingRemote(int opponentId) async {
+  Future<void> _startRenderingRemote(int opponentId) async {
     try {
-      await _remoteVideoViewController!.play(_sessionId!, opponentId);
+      await _remoteVideoViewController?.play(_sessionId!, opponentId);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
-  Future<void> subscribeCall() async {
+  Future<void> _subscribeCall() async {
     if (_callSubscription != null) {
-      SnackBarUtils.showResult(
-          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.CALL);
+      SnackBarUtils.showResult(_scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.CALL);
       return;
     }
 
     try {
       _callSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL, (data) {
         Map<dynamic, dynamic> payloadMap = Map<dynamic, dynamic>.from(data["payload"]);
-
         Map<dynamic, dynamic> sessionMap = Map<dynamic, dynamic>.from(payloadMap["session"]);
 
         String sessionId = sessionMap["id"];
-        int initiatorId = sessionMap["initiatorId"];
-        int callType = sessionMap["type"];
+        _sessionId = sessionId;
 
         setState(() {
+          int callType = sessionMap["type"];
           if (callType == QBRTCSessionTypes.AUDIO) {
-            _videoCall = false;
+            _isVideoCall = false;
           } else {
-            _videoCall = true;
+            _isVideoCall = true;
           }
         });
 
-        _sessionId = sessionId;
-        String messageCallType = _videoCall ? "Video" : "Audio";
-
-        DialogUtils.showTwoBtn(context, "The INCOMING $messageCallType call from user $initiatorId",
-            (accept) {
-          acceptWebRTC(sessionId);
-        }, (decline) {
-          rejectWebRTC(sessionId);
+        String callType = _isVideoCall ? "Video" : "Audio";
+        int userId = sessionMap["initiatorId"];
+        DialogUtils.showTwoBtn(context, "The INCOMING $callType call from user $userId", () {
+          _acceptCall(sessionId);
+        }, () {
+          _rejectCall(sessionId);
         });
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
       });
       SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.CALL);
     } on PlatformException catch (e) {
@@ -582,23 +423,18 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> subscribeCallEnd() async {
+  Future<void> _subscribeCallEnd() async {
     if (_callEndSubscription != null) {
-      SnackBarUtils.showResult(
-          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.CALL_END);
+      SnackBarUtils.showResult(_scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.CALL_END);
       return;
     }
     try {
       _callEndSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL_END, (data) {
         Map<dynamic, dynamic> payloadMap = Map<dynamic, dynamic>.from(data["payload"]);
-
         Map<dynamic, dynamic> sessionMap = Map<dynamic, dynamic>.from(payloadMap["session"]);
 
         String sessionId = sessionMap["id"];
-
         SnackBarUtils.showResult(_scaffoldKey, "The call with sessionId $sessionId was ended");
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
       });
       SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.CALL_END);
     } on PlatformException catch (e) {
@@ -606,27 +442,23 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> subscribeVideoTrack() async {
+  Future<void> _subscribeVideoTrack() async {
     if (_videoTrackSubscription != null) {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You already have a subscription for:" + QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
+      SnackBarUtils.showResult(
+          _scaffoldKey, "You already have a subscription for:" + QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
       return;
     }
 
     try {
-      _videoTrackSubscription =
-          await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.RECEIVED_VIDEO_TRACK, (data) {
+      _videoTrackSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.RECEIVED_VIDEO_TRACK, (data) {
         Map<dynamic, dynamic> payloadMap = Map<dynamic, dynamic>.from(data["payload"]);
 
         int opponentId = payloadMap["userId"];
-
         if (opponentId == LOGGED_USER_ID) {
-          startRenderingLocal();
+          _startRenderingLocal();
         } else {
-          startRenderingRemote(opponentId);
+          _startRenderingRemote(opponentId);
         }
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
       });
       SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
     } on PlatformException catch (e) {
@@ -634,20 +466,16 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> subscribeNotAnswer() async {
+  Future<void> _subscribeNotAnswer() async {
     if (_notAnswerSubscription != null) {
-      SnackBarUtils.showResult(
-          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.NOT_ANSWER);
+      SnackBarUtils.showResult(_scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.NOT_ANSWER);
       return;
     }
 
     try {
-      _notAnswerSubscription =
-          await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.NOT_ANSWER, (data) {
+      _notAnswerSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.NOT_ANSWER, (data) {
         int userId = data["payload"]["userId"];
         DialogUtils.showOneBtn(context, "The user $userId is not answer");
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
       });
       SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.NOT_ANSWER);
     } on PlatformException catch (e) {
@@ -655,10 +483,9 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> subscribeReject() async {
+  Future<void> _subscribeReject() async {
     if (_rejectSubscription != null) {
-      SnackBarUtils.showResult(
-          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.REJECT);
+      SnackBarUtils.showResult(_scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.REJECT);
       return;
     }
 
@@ -666,8 +493,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _rejectSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.REJECT, (data) {
         int userId = data["payload"]["userId"];
         DialogUtils.showOneBtn(context, "The user $userId was rejected your call");
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
       });
       SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.REJECT);
     } on PlatformException catch (e) {
@@ -675,10 +500,9 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> subscribeAccept() async {
+  Future<void> _subscribeAccept() async {
     if (_acceptSubscription != null) {
-      SnackBarUtils.showResult(
-          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.ACCEPT);
+      SnackBarUtils.showResult(_scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.ACCEPT);
       return;
     }
 
@@ -686,8 +510,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _acceptSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.ACCEPT, (data) {
         int userId = data["payload"]["userId"];
         SnackBarUtils.showResult(_scaffoldKey, "The user $userId was accepted your call");
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
       });
       SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.ACCEPT);
     } on PlatformException catch (e) {
@@ -695,10 +517,9 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> subscribeHangUp() async {
+  Future<void> _subscribeHangUp() async {
     if (_hangUpSubscription != null) {
-      SnackBarUtils.showResult(
-          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.HANG_UP);
+      SnackBarUtils.showResult(_scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.HANG_UP);
       return;
     }
 
@@ -706,8 +527,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _hangUpSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.HANG_UP, (data) {
         int userId = data["payload"]["userId"];
         DialogUtils.showOneBtn(context, "the user $userId is hang up");
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
       });
       SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.HANG_UP);
     } on PlatformException catch (e) {
@@ -715,10 +534,10 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     }
   }
 
-  Future<void> subscribePeerConnection() async {
+  Future<void> _subscribePeerConnection() async {
     if (_peerConnectionSubscription != null) {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You already have a subscription for: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
+      SnackBarUtils.showResult(
+          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
       return;
     }
 
@@ -726,81 +545,72 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
       _peerConnectionSubscription =
           await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED, (data) {
         int state = data["payload"]["state"];
-        String parsedState = parseState(state);
+        String parsedState = _parsePeerConnectionState(state);
         SnackBarUtils.showResult(_scaffoldKey, "PeerConnection state: $parsedState");
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
-  void unsubscribeCall() {
-    if (_callSubscription != null) {
-      _callSubscription!.cancel();
-      _callSubscription = null;
-      SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.CALL);
-    }
-  }
-
-  void unsubscribeCallEnd() {
-    if (_callEndSubscription != null) {
-      _callEndSubscription!.cancel();
-      _callEndSubscription = null;
-      SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.CALL_END);
-    }
-  }
-
-  void unsubscribeReject() {
-    if (_rejectSubscription != null) {
-      _rejectSubscription!.cancel();
-      _rejectSubscription = null;
-      SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.REJECT);
-    }
-  }
-
-  void unsubscribeAccept() {
-    if (_acceptSubscription != null) {
-      _acceptSubscription!.cancel();
-      _acceptSubscription = null;
-      SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.ACCEPT);
-    }
-  }
-
-  void unsubscribeHangUp() {
-    if (_hangUpSubscription != null) {
-      _hangUpSubscription!.cancel();
-      _hangUpSubscription = null;
-      SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.HANG_UP);
-    }
-  }
-
-  void unsubscribeVideoTrack() {
-    if (_videoTrackSubscription != null) {
-      _videoTrackSubscription!.cancel();
-      _videoTrackSubscription = null;
+  Future<void> _subscribeReconnection() async {
+    if (_reconnectionSubscription != null) {
       SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.RECEIVED_VIDEO_TRACK);
+          _scaffoldKey, "You already have a subscription for: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
+      return;
+    }
+
+    try {
+      _reconnectionSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.RECONNECTION_STATE_CHANGED, (data) {
+        int state = data["payload"]["state"];
+        String parsedState = _parseReconnectionState(state);
+        SnackBarUtils.showResult(_scaffoldKey, "Reconnection state: $parsedState");
+      });
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBRTCEventTypes.RECONNECTION_STATE_CHANGED);
+    } on PlatformException catch (e) {
+      DialogUtils.showError(context, e);
     }
   }
 
-  void unsubscribeNotAnswer() {
-    if (_notAnswerSubscription != null) {
-      _notAnswerSubscription!.cancel();
-      _notAnswerSubscription = null;
-      SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.NOT_ANSWER);
-    }
+  void _subscribeEvents() {
+    _subscribeCall();
+    _subscribeCallEnd();
+    _subscribeReject();
+    _subscribeAccept();
+    _subscribeHangUp();
+    _subscribeVideoTrack();
+    _subscribeNotAnswer();
+    _subscribePeerConnection();
+    _subscribeReconnection();
   }
 
-  void unsubscribePeerConnection() {
-    if (_peerConnectionSubscription != null) {
-      _peerConnectionSubscription!.cancel();
-      _peerConnectionSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBRTCEventTypes.PEER_CONNECTION_STATE_CHANGED);
-    }
+  void _unsubscribeEvents() {
+    _callSubscription?.cancel();
+    _callSubscription = null;
+
+    _callEndSubscription?.cancel();
+    _callEndSubscription = null;
+
+    _rejectSubscription?.cancel();
+    _rejectSubscription = null;
+
+    _acceptSubscription?.cancel();
+    _acceptSubscription = null;
+
+    _hangUpSubscription?.cancel();
+    _hangUpSubscription = null;
+
+    _videoTrackSubscription?.cancel();
+    _videoTrackSubscription = null;
+
+    _notAnswerSubscription?.cancel();
+    _notAnswerSubscription = null;
+
+    _peerConnectionSubscription?.cancel();
+    _peerConnectionSubscription = null;
+
+    _reconnectionSubscription?.cancel();
+    _reconnectionSubscription = null;
   }
 }

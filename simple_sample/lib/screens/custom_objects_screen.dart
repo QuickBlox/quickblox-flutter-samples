@@ -23,51 +23,31 @@ class _CustomObjectsScreenState extends State<CustomObjectsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: const Text('Custom Objects'),
-          centerTitle: true,
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop()),
-        ),
+        appBar: _buildAppBar(),
         body: Center(
             child: Column(children: [
-          MaterialButton(
-            minWidth: 200,
-            child: Text('create'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: createCustomObject,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('remove'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: removeCustomObject,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('get by ids'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: getCustomObjectsByIds,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('get'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: getCustomObject,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('update'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: updateCustomObject,
-          ),
+          _buildButton('create', () => createCustomObject()),
+          _buildButton('remove', () => removeCustomObject()),
+          _buildButton('get by ids', () => getCustomObjectsByIds()),
+          _buildButton('get', () => getCustomObject()),
+          _buildButton('update', () => updateCustomObject())
         ])));
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+        title: const Text('Custom Objects'),
+        centerTitle: true,
+        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
+  }
+
+  Widget _buildButton(String title, Function? callback) {
+    return MaterialButton(
+        minWidth: 200,
+        child: Text(title),
+        color: Theme.of(context).primaryColor,
+        textColor: Colors.white,
+        onPressed: () => callback?.call());
   }
 
   Future<void> createCustomObject() async {
@@ -77,14 +57,13 @@ class _CustomObjectsScreenState extends State<CustomObjectsScreen> {
     fieldsMap['testBoolean'] = true;
 
     try {
-      List<QBCustomObject?> customObjectsList = await QB.data
-          .create(className: CUSTOM_OBJECT_ClASS_NAME, fields: fieldsMap);
+      List<QBCustomObject?> customObjectsList =
+          await QB.data.create(className: CUSTOM_OBJECT_ClASS_NAME, fields: fieldsMap);
       QBCustomObject? customObject = customObjectsList[0];
 
       if (customObject != null) {
         _id = customObject.id;
-        SnackBarUtils.showResult(_scaffoldKey,
-            "The class $CUSTOM_OBJECT_ClASS_NAME  was created \n ID: $_id");
+        SnackBarUtils.showResult(_scaffoldKey, "The class $CUSTOM_OBJECT_ClASS_NAME  was created \n ID: $_id");
       }
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -102,11 +81,9 @@ class _CustomObjectsScreenState extends State<CustomObjectsScreen> {
 
   Future<void> getCustomObjectsByIds() async {
     try {
-      List<QBCustomObject?> customObjects =
-          await QB.data.getByIds(CUSTOM_OBJECT_ClASS_NAME, [_id!]);
+      List<QBCustomObject?> customObjects = await QB.data.getByIds(CUSTOM_OBJECT_ClASS_NAME, [_id!]);
       int size = customObjects.length;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Loaded custom objects size: $size");
+      SnackBarUtils.showResult(_scaffoldKey, "Loaded custom objects size: $size");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -114,11 +91,9 @@ class _CustomObjectsScreenState extends State<CustomObjectsScreen> {
 
   Future<void> getCustomObject() async {
     try {
-      List<QBCustomObject?> customObjects =
-          await QB.data.get(CUSTOM_OBJECT_ClASS_NAME);
+      List<QBCustomObject?> customObjects = await QB.data.get(CUSTOM_OBJECT_ClASS_NAME);
       int size = customObjects.length;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Loaded custom objects size: $size");
+      SnackBarUtils.showResult(_scaffoldKey, "Loaded custom objects size: $size");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -126,11 +101,9 @@ class _CustomObjectsScreenState extends State<CustomObjectsScreen> {
 
   Future<void> updateCustomObject() async {
     try {
-      QBCustomObject? customObject =
-          await QB.data.update(CUSTOM_OBJECT_ClASS_NAME, id: _id!);
+      QBCustomObject? customObject = await QB.data.update(CUSTOM_OBJECT_ClASS_NAME, id: _id!);
       String? id = customObject!.id;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The custom object $id was updated");
+      SnackBarUtils.showResult(_scaffoldKey, "The custom object $id was updated");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }

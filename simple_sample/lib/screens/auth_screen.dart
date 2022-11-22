@@ -23,44 +23,30 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: const Text('Auth'),
-          centerTitle: true,
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop()),
-        ),
+        appBar: _buildAppBar(),
         body: Center(
             child: Column(children: [
-          MaterialButton(
-            minWidth: 200,
-            child: Text('login'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: login,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('logout'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: logout,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('set session'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: setSession,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('get session'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: getSession,
-          ),
+          _buildButton('login', () => login()),
+          _buildButton('logout', () => logout()),
+          _buildButton('set session', () => setSession()),
+          _buildButton('get session', () => getSession())
         ])));
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+        title: const Text('Auth'),
+        centerTitle: true,
+        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
+  }
+
+  Widget _buildButton(String title, Function? callback) {
+    return MaterialButton(
+        minWidth: 200,
+        child: Text(title),
+        color: Theme.of(context).primaryColor,
+        textColor: Colors.white,
+        onPressed: () => callback?.call());
   }
 
   Future<void> login() async {
@@ -95,8 +81,7 @@ class _AuthScreenState extends State<AuthScreen> {
       QBSession? savedSession = DataHolder.getInstance().getSession();
 
       if (savedSession == null) {
-        DialogUtils.showError(
-            context, PlatformException(code: "the session is null"));
+        DialogUtils.showError(context, PlatformException(code: "the session is null"));
         return;
       }
 
@@ -105,8 +90,7 @@ class _AuthScreenState extends State<AuthScreen> {
         DataHolder.getInstance().setSession(session);
         SnackBarUtils.showResult(_scaffoldKey, "Set session success");
       } else {
-        DialogUtils.showError(
-            context, PlatformException(code: "The session is null"));
+        DialogUtils.showError(context, PlatformException(code: "The session is null"));
       }
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -120,8 +104,7 @@ class _AuthScreenState extends State<AuthScreen> {
         DataHolder.getInstance().setSession(session);
         SnackBarUtils.showResult(_scaffoldKey, "Get session success");
       } else {
-        DialogUtils.showError(context,
-            PlatformException(message: "The session is null", code: ""));
+        DialogUtils.showError(context, PlatformException(message: "The session is null", code: ""));
       }
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
