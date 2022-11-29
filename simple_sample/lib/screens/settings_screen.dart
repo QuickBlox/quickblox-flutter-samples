@@ -20,65 +20,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: const Text('Settings'),
-          centerTitle: true,
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop()),
-        ),
+        appBar: _buildAppBar(),
         body: Center(
             child: Column(children: [
-          MaterialButton(
-            minWidth: 200,
-            child: Text('init credentials'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: init,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('get'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: get,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('enable carbons'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: enableCarbons,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('disable carbons'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: disableCarbons,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('init stream management'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: initStreamManagement,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('enable auto reconnect'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: enableAutoReconnect,
-          )
+          _buildButton('init credentials', () => init()),
+          _buildButton('get', () => get()),
+          _buildButton('enable carbon', () => enableCarbons()),
+          _buildButton('disable carbons', () => disableCarbons()),
+          _buildButton('init stream management', () => initStreamManagement()),
+          _buildButton('enable auto reconnect', () => enableAutoReconnect()),
+          _buildButton('enable logging', () {
+            QB.settings.enableLogging();
+            QB.settings.enableXMPPLogging();
+          }),
+          _buildButton('disable logging', () {
+            QB.settings.disableLogging();
+            QB.settings.disableXMPPLogging();
+          })
         ])));
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+        title: const Text('Settings'),
+        centerTitle: true,
+        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
+  }
+
+  Widget _buildButton(String title, Function? callback) {
+    return MaterialButton(
+        minWidth: 200,
+        child: Text(title),
+        color: Theme.of(context).primaryColor,
+        textColor: Colors.white,
+        onPressed: () => callback?.call());
   }
 
   Future<void> init() async {
     try {
-      await QB.settings.init(APP_ID, AUTH_KEY, AUTH_SECRET, ACCOUNT_KEY,
-          apiEndpoint: API_ENDPOINT, chatEndpoint: CHAT_ENDPOINT);
-      SnackBarUtils.showResult(_scaffoldKey, "The credentails was set");
+      await QB.settings
+          .init(APP_ID, AUTH_KEY, AUTH_SECRET, ACCOUNT_KEY, apiEndpoint: API_ENDPOINT, chatEndpoint: CHAT_ENDPOINT);
+      SnackBarUtils.showResult(_scaffoldKey, "The credentials were set");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -113,24 +95,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> initStreamManagement() async {
     bool autoReconnect = true;
-    int messageTimeout = 3;
+    int MESSAGE_TIMEOUT = 3;
     try {
-      await QB.settings
-          .initStreamManagement(messageTimeout, autoReconnect: autoReconnect);
-      SnackBarUtils.showResult(_scaffoldKey,
-          "Stream management was initiated with timeout $messageTimeout");
+      await QB.settings.initStreamManagement(MESSAGE_TIMEOUT, autoReconnect: autoReconnect);
+      SnackBarUtils.showResult(_scaffoldKey, "Stream management was initiated with timeout $MESSAGE_TIMEOUT");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
   Future<void> enableAutoReconnect() async {
-    bool enable = true;
-
     try {
-      await QB.settings.enableAutoReconnect(enable);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Auto reconnect was changed to : $enable");
+      await QB.settings.enableAutoReconnect(true);
+      SnackBarUtils.showResult(_scaffoldKey, "Auto reconnect was enabled");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }

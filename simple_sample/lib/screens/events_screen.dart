@@ -24,51 +24,31 @@ class _EventsScreenState extends State<EventsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: const Text('Events'),
-          centerTitle: true,
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop()),
-        ),
+        appBar: _buildAppBar(),
         body: Center(
             child: Column(children: [
-          MaterialButton(
-            minWidth: 200,
-            child: Text('create notification'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: createNotification,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('update notification'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: updateNotification,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('remove notification'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: removeNotification,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('get by id notification'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: getByIdNotification,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('get notifications'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: getNotifications,
-          )
+          _buildButton('create notification', () => createNotification()),
+          _buildButton('update notification', () => updateNotification()),
+          _buildButton('remove notification', () => removeNotification()),
+          _buildButton('get by id notification', () => getByIdNotification()),
+          _buildButton('get notifications', () => getNotifications())
         ])));
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+        title: const Text('Events'),
+        centerTitle: true,
+        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
+  }
+
+  Widget _buildButton(String title, Function? callback) {
+    return MaterialButton(
+        minWidth: 200,
+        child: Text(title),
+        color: Theme.of(context).primaryColor,
+        textColor: Colors.white,
+        onPressed: () => callback?.call());
   }
 
   Future<void> createNotification() async {
@@ -80,15 +60,13 @@ class _EventsScreenState extends State<EventsScreen> {
     payload["message"] = "test";
 
     try {
-      List<QBEvent?> qbEventsList = await QB.events
-          .create(type, notificationEventType, senderId, payload);
+      List<QBEvent?> qbEventsList = await QB.events.create(type, notificationEventType, senderId, payload);
 
       for (int i = 0; i < qbEventsList.length; i++) {
         QBEvent? event = qbEventsList[i];
         int? notificationId = event!.id;
         _id = event.id!;
-        SnackBarUtils.showResult(_scaffoldKey,
-            "The Notification was created with id: $notificationId");
+        SnackBarUtils.showResult(_scaffoldKey, "The Notification was created with id: $notificationId");
       }
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -99,8 +77,7 @@ class _EventsScreenState extends State<EventsScreen> {
     try {
       QBEvent? qbEvent = await QB.events.update(_id!, name: "test");
       int? notificationId = qbEvent!.id;
-      SnackBarUtils.showResult(_scaffoldKey,
-          "The Notification with id: $notificationId was updated");
+      SnackBarUtils.showResult(_scaffoldKey, "The Notification with id: $notificationId was updated");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -109,8 +86,7 @@ class _EventsScreenState extends State<EventsScreen> {
   Future<void> removeNotification() async {
     try {
       await QB.events.remove(_id!);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The notification with id: $_id was removed");
+      SnackBarUtils.showResult(_scaffoldKey, "The notification with id: $_id was removed");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -120,8 +96,7 @@ class _EventsScreenState extends State<EventsScreen> {
     try {
       QBEvent? qbEvent = await QB.events.getById(_id!);
       int? notificationId = qbEvent!.id;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The notification with id: $notificationId was loaded");
+      SnackBarUtils.showResult(_scaffoldKey, "The notification with id: $notificationId was loaded");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -131,8 +106,7 @@ class _EventsScreenState extends State<EventsScreen> {
     try {
       List<QBEvent?> qbEventsList = await QB.events.get();
       int count = qbEventsList.length;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Notifications were loaded. Count is: $count");
+      SnackBarUtils.showResult(_scaffoldKey, "Notifications were loaded. Count is: $count");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }

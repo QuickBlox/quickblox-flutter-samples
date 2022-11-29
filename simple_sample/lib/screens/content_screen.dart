@@ -32,101 +32,57 @@ class _ContentScreenState extends State<ContentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: const Text('File'),
-          centerTitle: true,
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop()),
-        ),
+        appBar: _buildAppBar(),
         body: Center(
             child: Column(children: [
-          MaterialButton(
-            minWidth: 200,
-            child: Text('subscribe upload progress'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: () {
-              subscribeUpload();
-            },
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('unsubscribe upload progress'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: () {
-              unsubscribeUpload();
-            },
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('upload'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: upload,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('get info'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: getInfo,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('get public URL'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: getPublicURL,
-          ),
-          MaterialButton(
-            minWidth: 200,
-            child: Text('get private URL'),
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            onPressed: getPrivateURL,
-          ),
+          _buildButton('subscribe upload progres', () => subscribeUpload()),
+          _buildButton('unsubscribe upload progress', () => unsubscribeUpload()),
+          _buildButton('upload', () => upload()),
+          _buildButton('get info', () => getInfo()),
+          _buildButton('get public URL', () => getPublicURL()),
+          _buildButton('get private URL', () => getPrivateURL())
         ])));
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+        title: const Text('File'),
+        centerTitle: true,
+        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
+  }
+
+  Widget _buildButton(String title, Function? callback) {
+    return MaterialButton(
+        minWidth: 200,
+        child: Text(title),
+        color: Theme.of(context).primaryColor,
+        textColor: Colors.white,
+        onPressed: () => callback?.call());
   }
 
   Future<void> subscribeUpload() async {
     if (_uploadProgressSubscription != null) {
       SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You already have a subscriprion: " +
-              QBFileUploadProgress.FILE_UPLOAD_PROGRESS);
+          _scaffoldKey, "You already have a subscription: " + QBFileUploadProgress.FILE_UPLOAD_PROGRESS);
       return;
     }
 
     try {
-      _uploadProgressSubscription = await QB.content.subscribeUploadProgress(
-          _fileUrl!, QBFileUploadProgress.FILE_UPLOAD_PROGRESS, (data) {
+      _uploadProgressSubscription =
+          await QB.content.subscribeUploadProgress(_fileUrl!, QBFileUploadProgress.FILE_UPLOAD_PROGRESS, (data) {
         String progress = data["payload"]["progress"].toString();
         String url = data["payload"]["url"];
-        SnackBarUtils.showResult(
-            _scaffoldKey, "Progress value is: $progress \n for url $url");
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
+        SnackBarUtils.showResult(_scaffoldKey, "Progress value is: $progress \n for url $url");
       });
-      SnackBarUtils.showResult(_scaffoldKey,
-          "Subscripbed: " + QBFileUploadProgress.FILE_UPLOAD_PROGRESS);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscripbed: " + QBFileUploadProgress.FILE_UPLOAD_PROGRESS);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
   void unsubscribeUpload() async {
-    if (_uploadProgressSubscription != null) {
-      _uploadProgressSubscription!.cancel();
-      _uploadProgressSubscription = null;
-
-      await QB.content.unsubscribeUploadProgress(
-          _fileUrl!, QBFileUploadProgress.FILE_UPLOAD_PROGRESS);
-
-      SnackBarUtils.showResult(_scaffoldKey,
-          "Unsubscribed: " + QBFileUploadProgress.FILE_UPLOAD_PROGRESS);
-    }
+    _uploadProgressSubscription?.cancel();
+    _uploadProgressSubscription = null;
   }
 
   Future<void> upload() async {

@@ -37,19 +37,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   StreamSubscription? _reconnectionSuccessSubscription;
 
   @override
-  initState() {
-    super.initState();
-    if (WidgetsBinding.instance != null) {
-      WidgetsBinding.instance!.addObserver(this);
-    }
-  }
-
-  @override
   void dispose() {
     super.dispose();
-    if (WidgetsBinding.instance != null) {
-      WidgetsBinding.instance!.removeObserver(this);
-    }
 
     unsubscribeNewMessage();
     unsubscribeSystemMessage();
@@ -64,234 +53,86 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        print("app in resumed");
-        break;
-      case AppLifecycleState.inactive:
-        print("app in inactive");
-        break;
-      case AppLifecycleState.paused:
-        print("app in paused");
-        break;
-      case AppLifecycleState.detached:
-        print("app in detached");
-        break;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: const Text('Chat'),
-          centerTitle: true,
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop()),
-        ),
+        appBar: _buildAppBar(),
         body: Center(
             child: SingleChildScrollView(
                 child: Column(children: [
-          MaterialButton(
-              minWidth: 200,
-              onPressed: connect,
-              child: Text('connect'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: disconnect,
-              child: Text('disconnect'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: isConnected,
-              child: Text('is connected'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: pingServer,
-              child: Text('ping server'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: pingUser,
-              child: Text('ping user'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: getDialogs,
-              child: Text('get dialogs'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: getDialogsCount,
-              child: Text('get dialogs count'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: updateDialog,
-              child: Text('update dialog'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: createDialog,
-              child: Text('create dialog'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: deleteDialog,
-              child: Text('delete dialog'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: leaveDialog,
-              child: Text('leave dialog'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: joinDialog,
-              child: Text('join dialog'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: getOnlineUsers,
-              child: Text('get online users'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: sendMessage,
-              child: Text('send message'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: sendSystemMessage,
-              child: Text('send system message'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: () {
-                subscribeNewMessage();
-                subscribeSystemMessage();
-              },
-              child: Text('subscribe message events'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: () {
-                unsubscribeNewMessage();
-                unsubscribeSystemMessage();
-              },
-              child: Text('unsubscribe message events'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: markMessageRead,
-              child: Text('mark message read'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: markMessageDelivered,
-              child: Text('mark message delivered'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: () {
-                subscribeMessageDelivered();
-                subscribeMessageRead();
-              },
-              child: Text('subscribe message status'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: () {
-                unsubscribeDeliveredMessage();
-                unsubscribeReadMessage();
-              },
-              child: Text('unsubscribe message status'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: sendIsTyping,
-              child: Text('send is typing'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: sendStoppedTyping,
-              child: Text('send stopped typing'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: () {
-                subscribeUserTyping();
-                subscribeUserStopTyping();
-              },
-              child: Text('subscribe typing'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: () {
-                unsubscribeUserTyping();
-                unsubscribeUserStopTyping();
-              },
-              child: Text('unsubscribe typing'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: getDialogMessages,
-              child: Text('get dialog messages'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: () {
-                subscribeConnected();
-                subscribeConnectionClosed();
-                subscribeReconnectionFailed();
-                subscribeReconnectionSuccess();
-              },
-              child: Text('subscribe event connections'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
-          MaterialButton(
-              minWidth: 200,
-              onPressed: () {
-                unsubscribeConnected();
-                unsubscribeConnectionClosed();
-                unsubscribeReconnectionFailed();
-                unsubscribeReconnectionSuccess();
-              },
-              child: Text('unsubscribe event connections'),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white),
+          _buildButton('connect', () => connect()),
+          _buildButton('disconnect', () => disconnect()),
+          _buildButton('is connected', () => isConnected()),
+          _buildButton('ping server', () => pingServer()),
+          _buildButton('ping user', () => pingUser()),
+          _buildButton('get dialogs', () => getDialogs()),
+          _buildButton('get dialogs count', () => getDialogsCount()),
+          _buildButton('update dialog', () => updateDialog()),
+          _buildButton('create dialog', () => createDialog()),
+          _buildButton('delete dialog', () => deleteDialog()),
+          _buildButton('leave dialog', () => leaveDialog()),
+          _buildButton('join dialog', () => joinDialog()),
+          _buildButton('get online users', () => getOnlineUsers()),
+          _buildButton('send message', () => sendMessage()),
+          _buildButton('send system message', () => sendSystemMessage()),
+          _buildButton('subscribe message events', () {
+            subscribeNewMessage();
+            subscribeSystemMessage();
+          }),
+          _buildButton('unsubscribe message events', () {
+            unsubscribeNewMessage();
+            unsubscribeSystemMessage();
+          }),
+          _buildButton('mark message read', () => markMessageRead()),
+          _buildButton('mark message delivered', () => markMessageDelivered()),
+          _buildButton('subscribe message status', () {
+            subscribeMessageDelivered();
+            subscribeMessageRead();
+          }),
+          _buildButton('unsubscribe message status', () {
+            unsubscribeDeliveredMessage();
+            unsubscribeReadMessage();
+          }),
+          _buildButton('send is typing', () => sendIsTyping()),
+          _buildButton('send stopped typing', () => sendStoppedTyping()),
+          _buildButton('subscribe typing', () {
+            subscribeUserTyping();
+            subscribeUserStopTyping();
+          }),
+          _buildButton('unsubscribe typing', () {
+            unsubscribeUserTyping();
+            unsubscribeUserStopTyping();
+          }),
+          _buildButton('get dialog messages', () => getDialogMessages()),
+          _buildButton('subscribe event connections', () {
+            subscribeConnected();
+            subscribeConnectionClosed();
+            subscribeReconnectionFailed();
+            subscribeReconnectionSuccess();
+          }),
+          _buildButton('unsubscribe event connections', () {
+            unsubscribeConnected();
+            unsubscribeConnectionClosed();
+            unsubscribeReconnectionFailed();
+            unsubscribeReconnectionSuccess();
+          })
         ]))));
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+        title: const Text('Chat'),
+        centerTitle: true,
+        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
+  }
+
+  Widget _buildButton(String title, Function? callback) {
+    return MaterialButton(
+        minWidth: 200,
+        child: Text(title),
+        color: Theme.of(context).primaryColor,
+        textColor: Colors.white,
+        onPressed: () => callback?.call());
   }
 
   void connect() async {
@@ -315,8 +156,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void isConnected() async {
     try {
       bool? connected = await QB.chat.isConnected();
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The Chat connected: " + connected.toString());
+      SnackBarUtils.showResult(_scaffoldKey, "The Chat connected: " + connected.toString());
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -334,8 +174,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void pingUser() async {
     try {
       await QB.chat.pingUser(OPPONENT_ID);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The user $OPPONENT_ID was ping success");
+      SnackBarUtils.showResult(_scaffoldKey, "The user $OPPONENT_ID was ping success");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -354,8 +193,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
       List<QBDialog?> dialogs = await QB.chat.getDialogs();
       var dialogsLength = dialogs.length;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The $dialogsLength dialogs were loaded success");
+      SnackBarUtils.showResult(_scaffoldKey, "The $dialogsLength dialogs were loaded success");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -371,10 +209,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       int limit = 100;
       int skip = 0;
 
-      var dialogsCount = await QB.chat
-          .getDialogsCount(qbFilter: filter, limit: limit, skip: skip);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The dialogs count is: $dialogsCount");
+      var dialogsCount = await QB.chat.getDialogsCount(qbFilter: filter, limit: limit, skip: skip);
+      SnackBarUtils.showResult(_scaffoldKey, "The dialogs count is: $dialogsCount");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -388,16 +224,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       String dialogPhoto = "some photo url";
 
       QBDialog? updatedDialog = await QB.chat.updateDialog(_dialogId!,
-          addUsers: addUsers,
-          removeUsers: removeUsers,
-          dialogName: dialogName,
-          dialogPhoto: dialogPhoto);
+          addUsers: addUsers, removeUsers: removeUsers, dialogName: dialogName, dialogPhoto: dialogPhoto);
 
       if (updatedDialog != null) {
         String? updatedDialogId = updatedDialog.id;
-        SnackBarUtils.showResult(
-            _scaffoldKey, "The dialog $updatedDialogId was updated");
-      } else {}
+        SnackBarUtils.showResult(_scaffoldKey, "The dialog $updatedDialogId was updated");
+      }
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -411,14 +243,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     int dialogType = QBChatDialogTypes.GROUP_CHAT;
 
     try {
-      QBDialog? createdDialog = await QB.chat.createDialog(
-          occupantsIds, dialogName,
-          dialogType: dialogType, dialogPhoto: dialogPhoto);
+      QBDialog? createdDialog = await QB.chat.createDialog(QBChatDialogTypes.CHAT,
+          occupantsIds: occupantsIds, dialogName: dialogName, dialogPhoto: dialogPhoto);
 
       if (createdDialog != null) {
         _dialogId = createdDialog.id!;
-        SnackBarUtils.showResult(
-            _scaffoldKey, "The dialog $_dialogId was created");
+        SnackBarUtils.showResult(_scaffoldKey, "The dialog $_dialogId was created");
       }
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -428,8 +258,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void deleteDialog() async {
     try {
       await QB.chat.deleteDialog(_dialogId!);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The dialog $_dialogId was deleted");
+      SnackBarUtils.showResult(_scaffoldKey, "The dialog $_dialogId was deleted");
       _dialogId = null;
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
@@ -439,8 +268,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void leaveDialog() async {
     try {
       await QB.chat.leaveDialog(_dialogId!);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The dialog $_dialogId was leaved");
+      SnackBarUtils.showResult(_scaffoldKey, "The dialog $_dialogId was leaved");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -449,8 +277,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void joinDialog() async {
     try {
       await QB.chat.joinDialog(_dialogId!);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The dialog $_dialogId was joined");
+      SnackBarUtils.showResult(_scaffoldKey, "The dialog $_dialogId was joined");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -462,16 +289,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       if (onlineUsers == null) {
         onlineUsers = [];
       }
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The online users are: $onlineUsers");
+      SnackBarUtils.showResult(_scaffoldKey, "The online users are: $onlineUsers");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
   void sendMessage() async {
-    String messageBody =
-        "Hello from flutter!" + "\n From user: " + LOGGED_USER_ID.toString();
+    String messageBody = "Hello from flutter!" + "\n From user: " + LOGGED_USER_ID.toString();
 
     try {
       Map<String, String> properties = Map();
@@ -479,10 +304,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       properties["testProperty2"] = "testPropertyValue2";
       properties["testProperty3"] = "testPropertyValue3";
 
-      await QB.chat.sendMessage(_dialogId!,
-          body: messageBody, saveToHistory: true, properties: properties);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The message was sent to dialog: $_dialogId");
+      await QB.chat.sendMessage(_dialogId!, body: messageBody, saveToHistory: true, properties: properties);
+      SnackBarUtils.showResult(_scaffoldKey, "The message was sent to dialog: $_dialogId");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -500,27 +323,20 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void subscribeNewMessage() async {
     if (_newMessageSubscription != null) {
       SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You already have a subscription for: " +
-              QBChatEvents.RECEIVED_NEW_MESSAGE);
+          _scaffoldKey, "You already have a subscription for: " + QBChatEvents.RECEIVED_NEW_MESSAGE);
       return;
     }
+
     try {
-      _newMessageSubscription = await QB.chat
-          .subscribeChatEvent(QBChatEvents.RECEIVED_NEW_MESSAGE, (data) {
+      _newMessageSubscription = await QB.chat.subscribeChatEvent(QBChatEvents.RECEIVED_NEW_MESSAGE, (data) {
         Map<dynamic, dynamic> map = Map<dynamic, dynamic>.from(data);
 
-        Map<dynamic, dynamic> payload =
-            Map<dynamic, dynamic>.from(map["payload"]);
+        Map<dynamic, dynamic> payload = Map<dynamic, dynamic>.from(map["payload"]);
         _messageId = payload["id"] as String;
 
-        SnackBarUtils.showResult(
-            _scaffoldKey, "Received message: \n ${payload["body"]}");
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
+        SnackBarUtils.showResult(_scaffoldKey, "Received message: \n ${payload["body"]}");
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBChatEvents.RECEIVED_NEW_MESSAGE);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBChatEvents.RECEIVED_NEW_MESSAGE);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -529,47 +345,23 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void subscribeSystemMessage() async {
     if (_systemMessageSubscription != null) {
       SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You already have a subscription for: " +
-              QBChatEvents.RECEIVED_SYSTEM_MESSAGE);
+          _scaffoldKey, "You already have a subscription for: " + QBChatEvents.RECEIVED_SYSTEM_MESSAGE);
       return;
     }
+
     try {
-      _systemMessageSubscription = await QB.chat
-          .subscribeChatEvent(QBChatEvents.RECEIVED_SYSTEM_MESSAGE, (data) {
+      _systemMessageSubscription = await QB.chat.subscribeChatEvent(QBChatEvents.RECEIVED_SYSTEM_MESSAGE, (data) {
         Map<dynamic, dynamic> map = Map<dynamic, dynamic>.from(data);
 
-        Map<dynamic, dynamic> payload =
-            Map<dynamic, dynamic>.from(map["payload"]);
+        Map<dynamic, dynamic> payload = Map<dynamic, dynamic>.from(map["payload"]);
 
         _messageId = payload["id"];
 
         SnackBarUtils.showResult(_scaffoldKey, "Received system message");
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBChatEvents.RECEIVED_SYSTEM_MESSAGE);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBChatEvents.RECEIVED_SYSTEM_MESSAGE);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
-    }
-  }
-
-  void unsubscribeNewMessage() {
-    if (_newMessageSubscription != null) {
-      _newMessageSubscription!.cancel();
-      _newMessageSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBChatEvents.RECEIVED_NEW_MESSAGE);
-    }
-  }
-
-  void unsubscribeSystemMessage() {
-    if (_systemMessageSubscription != null) {
-      _systemMessageSubscription!.cancel();
-      _systemMessageSubscription = null;
-      SnackBarUtils.showResult(_scaffoldKey,
-          "Unsubscribed: " + QBChatEvents.RECEIVED_SYSTEM_MESSAGE);
     }
   }
 
@@ -581,8 +373,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     try {
       await QB.chat.markMessageRead(qbMessage);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The message " + _messageId! + " was marked read");
+      SnackBarUtils.showResult(_scaffoldKey, "The message " + _messageId! + " was marked read");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -596,8 +387,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     try {
       await QB.chat.markMessageDelivered(qbMessage);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "The message " + _messageId! + " was marked delivered");
+      SnackBarUtils.showResult(_scaffoldKey, "The message " + _messageId! + " was marked delivered");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -605,20 +395,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void subscribeMessageDelivered() async {
     if (_deliveredMessageSubscription != null) {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You already have a subscription for: " +
-              QBChatEvents.MESSAGE_DELIVERED);
+      SnackBarUtils.showResult(_scaffoldKey, "You already have a subscription for: " + QBChatEvents.MESSAGE_DELIVERED);
       return;
     }
+
     try {
-      _deliveredMessageSubscription = await QB.chat
-          .subscribeChatEvent(QBChatEvents.MESSAGE_DELIVERED, (data) {
+      _deliveredMessageSubscription = await QB.chat.subscribeChatEvent(QBChatEvents.MESSAGE_DELIVERED, (data) {
         LinkedHashMap<dynamic, dynamic> messageStatusHashMap = data;
-        Map<dynamic, dynamic> messageStatusMap =
-            Map<dynamic, dynamic>.from(messageStatusHashMap);
-        Map<dynamic, dynamic> payloadMap =
-            Map<dynamic, dynamic>.from(messageStatusHashMap["payload"]);
+        Map<dynamic, dynamic> messageStatusMap = Map<dynamic, dynamic>.from(messageStatusHashMap);
+        Map<dynamic, dynamic> payloadMap = Map<dynamic, dynamic>.from(messageStatusHashMap["payload"]);
 
         String messageId = payloadMap["messageId"];
         int userId = payloadMap["userId"];
@@ -628,11 +413,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             _scaffoldKey,
             "Received message status: $statusType \n From userId: $userId "
             "\n messageId: $messageId");
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBChatEvents.MESSAGE_DELIVERED);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBChatEvents.MESSAGE_DELIVERED);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -640,18 +422,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void subscribeMessageRead() async {
     if (_readMessageSubscription != null) {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You already have a subscription for: " + QBChatEvents.MESSAGE_READ);
+      SnackBarUtils.showResult(_scaffoldKey, "You already have a subscription for: " + QBChatEvents.MESSAGE_READ);
       return;
     }
+
     try {
-      _readMessageSubscription =
-          await QB.chat.subscribeChatEvent(QBChatEvents.MESSAGE_READ, (data) {
+      _readMessageSubscription = await QB.chat.subscribeChatEvent(QBChatEvents.MESSAGE_READ, (data) {
         LinkedHashMap<dynamic, dynamic> messageStatusHashMap = data;
-        Map<dynamic, dynamic> messageStatusMap =
-            Map<dynamic, dynamic>.from(messageStatusHashMap);
-        Map<dynamic, dynamic> payloadMap =
-            Map<dynamic, dynamic>.from(messageStatusHashMap["payload"]);
+        Map<dynamic, dynamic> messageStatusMap = Map<dynamic, dynamic>.from(messageStatusHashMap);
+        Map<dynamic, dynamic> payloadMap = Map<dynamic, dynamic>.from(messageStatusHashMap["payload"]);
 
         String messageId = payloadMap["messageId"];
         int userId = payloadMap["userId"];
@@ -661,39 +440,17 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             _scaffoldKey,
             "Received message status: $statusType \n From userId: $userId "
             "\n messageId: $messageId");
-      }, onErrorMethod: (error) {
-        DialogUtils.showError(context, error);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBChatEvents.MESSAGE_READ);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBChatEvents.MESSAGE_READ);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
-    }
-  }
-
-  void unsubscribeDeliveredMessage() async {
-    if (_deliveredMessageSubscription != null) {
-      _deliveredMessageSubscription!.cancel();
-      _deliveredMessageSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBChatEvents.MESSAGE_DELIVERED);
-    }
-  }
-
-  void unsubscribeReadMessage() async {
-    if (_readMessageSubscription != null) {
-      _readMessageSubscription!.cancel();
-      _readMessageSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBChatEvents.MESSAGE_READ);
     }
   }
 
   void sendIsTyping() async {
     try {
       await QB.chat.sendIsTyping(_dialogId!);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Sent is typing for dialog: " + _dialogId!);
+      SnackBarUtils.showResult(_scaffoldKey, "Sent is typing for dialog: " + _dialogId!);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -702,8 +459,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void sendStoppedTyping() async {
     try {
       await QB.chat.sendStoppedTyping(_dialogId!);
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Sent stopped typing for dialog: " + _dialogId!);
+      SnackBarUtils.showResult(_scaffoldKey, "Sent stopped typing for dialog: " + _dialogId!);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -711,24 +467,18 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void subscribeUserTyping() async {
     if (_userTypingSubscription != null) {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You already have a subscription for: " +
-              QBChatEvents.USER_IS_TYPING);
+      SnackBarUtils.showResult(_scaffoldKey, "You already have a subscription for: " + QBChatEvents.USER_IS_TYPING);
       return;
     }
+
     try {
-      _userTypingSubscription =
-          await QB.chat.subscribeChatEvent(QBChatEvents.USER_IS_TYPING, (data) {
+      _userTypingSubscription = await QB.chat.subscribeChatEvent(QBChatEvents.USER_IS_TYPING, (data) {
         Map<dynamic, dynamic> map = Map<String, dynamic>.from(data);
-        Map<dynamic, dynamic> payload =
-            Map<String, dynamic>.from(map["payload"]);
+        Map<dynamic, dynamic> payload = Map<String, dynamic>.from(map["payload"]);
         int userId = payload["userId"];
-        SnackBarUtils.showResult(
-            _scaffoldKey, "Typing user: " + userId.toString());
+        SnackBarUtils.showResult(_scaffoldKey, "Typing user: " + userId.toString());
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBChatEvents.USER_IS_TYPING);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBChatEvents.USER_IS_TYPING);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -737,43 +487,20 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void subscribeUserStopTyping() async {
     if (_userStopTypingSubscription != null) {
       SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You already have a subscription for: " +
-              QBChatEvents.USER_STOPPED_TYPING);
+          _scaffoldKey, "You already have a subscription for: " + QBChatEvents.USER_STOPPED_TYPING);
       return;
     }
+
     try {
-      _userStopTypingSubscription = await QB.chat
-          .subscribeChatEvent(QBChatEvents.USER_STOPPED_TYPING, (data) {
+      _userStopTypingSubscription = await QB.chat.subscribeChatEvent(QBChatEvents.USER_STOPPED_TYPING, (data) {
         Map<dynamic, dynamic> map = Map<String, dynamic>.from(data);
-        Map<dynamic, dynamic> payload =
-            Map<String, dynamic>.from(map["payload"]);
+        Map<dynamic, dynamic> payload = Map<String, dynamic>.from(map["payload"]);
         int userId = payload["userId"];
-        SnackBarUtils.showResult(
-            _scaffoldKey, "Stopped typing user: " + userId.toString());
+        SnackBarUtils.showResult(_scaffoldKey, "Stopped typing user: " + userId.toString());
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBChatEvents.USER_STOPPED_TYPING);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBChatEvents.USER_STOPPED_TYPING);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
-    }
-  }
-
-  void unsubscribeUserTyping() async {
-    if (_userTypingSubscription != null) {
-      _userTypingSubscription!.cancel();
-      _userTypingSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBChatEvents.USER_IS_TYPING);
-    }
-  }
-
-  void unsubscribeUserStopTyping() async {
-    if (_userStopTypingSubscription != null) {
-      _userStopTypingSubscription!.cancel();
-      _userStopTypingSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBChatEvents.USER_STOPPED_TYPING);
     }
   }
 
@@ -786,8 +513,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         _messageId = messages[0]!.id;
       }
 
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Loaded messages: " + countMessages.toString());
+      SnackBarUtils.showResult(_scaffoldKey, "Loaded messages: " + countMessages.toString());
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -795,20 +521,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void subscribeConnected() async {
     if (_connectedSubscription != null) {
-      SnackBarUtils.showResult(_scaffoldKey,
-          "You already have a subscription for: " + QBChatEvents.CONNECTED);
+      SnackBarUtils.showResult(_scaffoldKey, "You already have a subscription for: " + QBChatEvents.CONNECTED);
       return;
     }
+
     try {
-      _connectedSubscription =
-          await QB.chat.subscribeChatEvent(QBChatEvents.CONNECTED, (data) {
-        SnackBarUtils.showResult(
-            _scaffoldKey, "Received: " + QBChatEvents.CONNECTED);
-      }, onErrorMethod: (error) {
-        SnackBarUtils.showResult(_scaffoldKey, error);
+      _connectedSubscription = await QB.chat.subscribeChatEvent(QBChatEvents.CONNECTED, (data) {
+        SnackBarUtils.showResult(_scaffoldKey, "Received: " + QBChatEvents.CONNECTED);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBChatEvents.CONNECTED);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBChatEvents.CONNECTED);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -816,22 +537,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void subscribeConnectionClosed() async {
     if (_connectionClosedSubscription != null) {
-      SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You already have a subscription for: " +
-              QBChatEvents.CONNECTION_CLOSED);
+      SnackBarUtils.showResult(_scaffoldKey, "You already have a subscription for: " + QBChatEvents.CONNECTION_CLOSED);
       return;
     }
+
     try {
-      _connectionClosedSubscription = await QB.chat
-          .subscribeChatEvent(QBChatEvents.CONNECTION_CLOSED, (data) {
-        SnackBarUtils.showResult(
-            _scaffoldKey, "Received: " + QBChatEvents.CONNECTION_CLOSED);
-      }, onErrorMethod: (error) {
-        SnackBarUtils.showResult(_scaffoldKey, error);
+      _connectionClosedSubscription = await QB.chat.subscribeChatEvent(QBChatEvents.CONNECTION_CLOSED, (data) {
+        SnackBarUtils.showResult(_scaffoldKey, "Received: " + QBChatEvents.CONNECTION_CLOSED);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBChatEvents.CONNECTION_CLOSED);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBChatEvents.CONNECTION_CLOSED);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -840,21 +554,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void subscribeReconnectionFailed() async {
     if (_reconnectionFailedSubscription != null) {
       SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You already have a subscription for: " +
-              QBChatEvents.RECONNECTION_FAILED);
+          _scaffoldKey, "You already have a subscription for: " + QBChatEvents.RECONNECTION_FAILED);
       return;
     }
+
     try {
-      _reconnectionFailedSubscription = await QB.chat
-          .subscribeChatEvent(QBChatEvents.RECONNECTION_FAILED, (data) {
-        SnackBarUtils.showResult(
-            _scaffoldKey, "Received: " + QBChatEvents.RECONNECTION_FAILED);
-      }, onErrorMethod: (error) {
-        SnackBarUtils.showResult(_scaffoldKey, error);
+      _reconnectionFailedSubscription = await QB.chat.subscribeChatEvent(QBChatEvents.RECONNECTION_FAILED, (data) {
+        SnackBarUtils.showResult(_scaffoldKey, "Received: " + QBChatEvents.RECONNECTION_FAILED);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBChatEvents.RECONNECTION_FAILED);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBChatEvents.RECONNECTION_FAILED);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -863,59 +571,67 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void subscribeReconnectionSuccess() async {
     if (_reconnectionSuccessSubscription != null) {
       SnackBarUtils.showResult(
-          _scaffoldKey,
-          "You already have a subscription for: " +
-              QBChatEvents.RECONNECTION_SUCCESSFUL);
+          _scaffoldKey, "You already have a subscription for: " + QBChatEvents.RECONNECTION_SUCCESSFUL);
       return;
     }
+
     try {
-      _reconnectionSuccessSubscription = await QB.chat
-          .subscribeChatEvent(QBChatEvents.RECONNECTION_SUCCESSFUL, (data) {
-        SnackBarUtils.showResult(
-            _scaffoldKey, "Received: " + QBChatEvents.RECONNECTION_SUCCESSFUL);
-      }, onErrorMethod: (error) {
-        SnackBarUtils.showResult(_scaffoldKey, error);
+      _reconnectionSuccessSubscription = await QB.chat.subscribeChatEvent(QBChatEvents.RECONNECTION_SUCCESSFUL, (data) {
+        SnackBarUtils.showResult(_scaffoldKey, "Received: " + QBChatEvents.RECONNECTION_SUCCESSFUL);
       });
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Subscribed: " + QBChatEvents.RECONNECTION_SUCCESSFUL);
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBChatEvents.RECONNECTION_SUCCESSFUL);
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
+  void unsubscribeNewMessage() {
+    _newMessageSubscription?.cancel();
+    _newMessageSubscription = null;
+  }
+
+  void unsubscribeSystemMessage() {
+    _systemMessageSubscription?.cancel();
+    _systemMessageSubscription = null;
+  }
+
+  void unsubscribeDeliveredMessage() async {
+    _deliveredMessageSubscription?.cancel();
+    _deliveredMessageSubscription = null;
+  }
+
+  void unsubscribeReadMessage() async {
+    _readMessageSubscription?.cancel();
+    _readMessageSubscription = null;
+  }
+
+  void unsubscribeUserTyping() async {
+    _userTypingSubscription?.cancel();
+    _userTypingSubscription = null;
+  }
+
+  void unsubscribeUserStopTyping() async {
+    _userStopTypingSubscription?.cancel();
+    _userStopTypingSubscription = null;
+  }
+
   void unsubscribeConnected() {
-    if (_connectedSubscription != null) {
-      _connectedSubscription!.cancel();
-      _connectedSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBChatEvents.CONNECTED);
-    }
+    _connectedSubscription?.cancel();
+    _connectedSubscription = null;
   }
 
   void unsubscribeConnectionClosed() {
-    if (_connectionClosedSubscription != null) {
-      _connectionClosedSubscription!.cancel();
-      _connectionClosedSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBChatEvents.CONNECTION_CLOSED);
-    }
+    _connectionClosedSubscription?.cancel();
+    _connectionClosedSubscription = null;
   }
 
   void unsubscribeReconnectionFailed() {
-    if (_reconnectionFailedSubscription != null) {
-      _reconnectionFailedSubscription!.cancel();
-      _reconnectionFailedSubscription = null;
-      SnackBarUtils.showResult(
-          _scaffoldKey, "Unsubscribed: " + QBChatEvents.RECONNECTION_FAILED);
-    }
+    _reconnectionFailedSubscription?.cancel();
+    _reconnectionFailedSubscription = null;
   }
 
   void unsubscribeReconnectionSuccess() {
-    if (_reconnectionSuccessSubscription != null) {
-      _reconnectionSuccessSubscription!.cancel();
-      _reconnectionSuccessSubscription = null;
-      SnackBarUtils.showResult(_scaffoldKey,
-          "Unsubscribed: " + QBChatEvents.RECONNECTION_SUCCESSFUL);
-    }
+    _reconnectionSuccessSubscription?.cancel();
+    _reconnectionSuccessSubscription = null;
   }
 }

@@ -24,118 +24,35 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Quickblox SDK'),
-          centerTitle: true,
-        ),
+        appBar: _buildAppBar(),
         body: Center(
-          child: Column(children: [
-            MaterialButton(
-                minWidth: 200,
-                child: Text('Auth'),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => AuthScreen(),
-                    ))),
-            MaterialButton(
-                minWidth: 200,
-                child: Text('Chat'),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => ChatScreen(),
-                    ))),
-            MaterialButton(
-                minWidth: 200,
-                child: Text('Custom objects'),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => CustomObjectsScreen(),
-                    ))),
-            MaterialButton(
-                minWidth: 200,
-                child: Text('File'),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => ContentScreen(),
-                    ))),
-            MaterialButton(
-                minWidth: 200,
-                child: Text('Events'),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => EventsScreen(),
-                    ))),
-            MaterialButton(
-                minWidth: 200,
-                child: Text('Subscriptions'),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => SubscriptionsScreen(),
-                    ))),
-            MaterialButton(
-                minWidth: 200,
-                child: Text('Settings'),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => SettingsScreen(),
-                    ))),
-            MaterialButton(
-                minWidth: 200,
-                child: Text('Users'),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => UsersScreen(),
-                    ))),
-            MaterialButton(
-                minWidth: 200,
-                child: Text('WebRTC'),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => WebRTCScreen(),
-                    ))),
-            MaterialButton(
-                minWidth: 200,
-                child: Text('Conference'),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => ConferenceScreen(),
-                    ))),
-            Padding(
-                padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
-                child: Text(
-                    "USER LOGIN: $USER_LOGIN \n USER ID: $LOGGED_USER_ID",
-                    style: TextStyle(fontSize: 14))),
-          ]),
-        ));
+            child: Column(children: [
+          _buildButton(context, 'Auth', AuthScreen()),
+          _buildButton(context, 'Chat', ChatScreen()),
+          _buildButton(context, 'Custom objects', CustomObjectsScreen()),
+          _buildButton(context, 'File', ContentScreen()),
+          _buildButton(context, 'Events', EventsScreen()),
+          _buildButton(context, 'Subscriptions', SubscriptionsScreen()),
+          _buildButton(context, 'Settings', SettingsScreen()),
+          _buildButton(context, 'Users', UsersScreen()),
+          _buildButton(context, 'WebRTC', WebRTCScreen()),
+          _buildButton(context, 'Conference', ConferenceScreen()),
+          Padding(
+              padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
+              child: Text("USER LOGIN: $USER_LOGIN \n USER ID: $LOGGED_USER_ID", style: TextStyle(fontSize: 14)))
+        ])));
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(title: const Text('Flutter Quickblox SDK'), centerTitle: true);
+  }
+
+  Widget _buildButton(BuildContext context, String title, Widget screen) {
+    return MaterialButton(
+        minWidth: 200,
+        child: Text(title),
+        color: Theme.of(context).primaryColor,
+        textColor: Colors.white,
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => screen)));
   }
 }
