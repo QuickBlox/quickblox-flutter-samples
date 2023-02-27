@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:quickblox_sdk/file/constants.dart';
@@ -38,6 +40,7 @@ class _ContentScreenState extends State<ContentScreen> {
           _buildButton('subscribe upload progres', () => subscribeUpload()),
           _buildButton('unsubscribe upload progress', () => unsubscribeUpload()),
           _buildButton('upload', () => upload()),
+          _buildButton('pick file', () => pickFile()),
           _buildButton('get info', () => getInfo()),
           _buildButton('get public URL', () => getPublicURL()),
           _buildButton('get private URL', () => getPrivateURL())
@@ -87,11 +90,23 @@ class _ContentScreenState extends State<ContentScreen> {
 
   Future<void> upload() async {
     try {
-      QBFile? file = await QB.content.upload(_fileUrl!);
-      int? id = file!.id;
-      SnackBarUtils.showResult(_scaffoldKey, "The file $id was uploaded");
+      QBFile? file = await QB.content.upload(_fileUrl!, public: true);
+      _fileId = file!.id;
+      _fileUid = file.uid;
+      SnackBarUtils.showResult(_scaffoldKey, "The file $_fileId was uploaded");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
+    }
+  }
+
+  Future<void> pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      _fileUrl = file.path;
+    } else {
+      // User canceled the picker
     }
   }
 

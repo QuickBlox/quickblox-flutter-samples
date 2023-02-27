@@ -3,6 +3,7 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:quickblox_sdk/models/qb_ice_server.dart';
 import 'package:quickblox_sdk/models/qb_rtc_session.dart';
 import 'package:quickblox_sdk/quickblox_sdk.dart';
@@ -36,6 +37,12 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
   StreamSubscription? _notAnswerSubscription;
   StreamSubscription? _peerConnectionSubscription;
   StreamSubscription? _reconnectionSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPermissions();
+  }
 
   @override
   void dispose() {
@@ -72,6 +79,7 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
           _buildButton('mirror camera', () => _mirrorCamera()),
           _buildButton('switch audio to LOUDSPEAKER', () => _switchAudioOutput(QBRTCAudioOutputTypes.LOUDSPEAKER)),
           _buildButton('switch audio to EARSPEAKER', () => _switchAudioOutput(QBRTCAudioOutputTypes.EARSPEAKER)),
+          _buildButton('switch audio to BLUETOOTH', () => _switchAudioOutputToBluetooth()),
           _buildButton('subscribe events', () => _subscribeEvents()),
           _buildButton('unsubscribe events', () => _unsubscribeEvents()),
           _buildButton('set RTCConfigs', () => _setRTCConfigs()),
@@ -247,6 +255,12 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
   }
 
   Future<void> _createCall(int sessionType) async {
+    bool notGrantedPermissions = !await _checkPermissions();
+    if (notGrantedPermissions) {
+      DialogUtils.showOneBtn(context, "There are not granted permissions");
+      return;
+    }
+
     try {
       QBRTCSession? session = await QB.webrtc.call(OPPONENTS_IDS, sessionType);
       _sessionId = session?.id;
@@ -308,6 +322,42 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
+  }
+
+  Future<void> _switchAudioOutputToBluetooth() async {
+    bool notHasPermissions = !await _checkPermissions();
+    if (notHasPermissions) {
+      DialogUtils.showOneBtn(context, "There are not permissions");
+      return;
+    }
+
+    try {
+      await QB.webrtc.switchAudioOutput(QBRTCAudioOutputTypes.BLUETOOTH);
+      SnackBarUtils.showResult(_scaffoldKey, "Audio was switched");
+    } on PlatformException catch (e) {
+      DialogUtils.showError(context, e);
+    }
+  }
+
+  Future<bool> _checkPermissions() async {
+    bool bluetoothDenied = await Permission.bluetoothConnect.status.isDenied;
+    bool cameraDenied = await Permission.camera.status.isDenied;
+    bool microphoneDenied = await Permission.microphone.status.isDenied;
+
+    bool isAllPermissionsGranted = true;
+
+    if (bluetoothDenied || cameraDenied || microphoneDenied) {
+      Map<Permission, PermissionStatus> statuses =
+          await [Permission.bluetoothConnect, Permission.camera, Permission.microphone].request();
+
+      statuses.forEach((key, value) {
+        if (value == PermissionStatus.denied || value == PermissionStatus.permanentlyDenied) {
+          isAllPermissionsGranted = false;
+        }
+      });
+    }
+
+    return isAllPermissionsGranted;
   }
 
   Future<void> _mirrorCamera() async {
