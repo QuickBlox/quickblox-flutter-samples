@@ -24,19 +24,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         body: Center(
             child: Column(children: [
           _buildButton('init credentials', () => init()),
-          _buildButton('get', () => get()),
-          _buildButton('enable carbon', () => enableCarbons()),
-          _buildButton('disable carbons', () => disableCarbons()),
-          _buildButton('init stream management', () => initStreamManagement()),
-          _buildButton('enable auto reconnect', () => enableAutoReconnect()),
-          _buildButton('enable logging', () {
-            QB.settings.enableLogging();
-            QB.settings.enableXMPPLogging();
-          }),
-          _buildButton('disable logging', () {
-            QB.settings.disableLogging();
-            QB.settings.disableXMPPLogging();
-          })
+          _buildButton('get', () => getSettings()),
+          _buildButton('enable carbon', () => _enableCarbons()),
+          _buildButton('disable carbons', () => _disableCarbons()),
+          _buildButton('init stream management', () => _initStreamManagement()),
+          _buildButton('enable auto reconnect', () => _enableAutoReconnect()),
+          _buildButton('enable logging', () => _enableLogging()),
+          _buildButton('disable logging', () => _disableLogging())
         ])));
   }
 
@@ -66,16 +60,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Future<void> get() async {
+  Future<void> getSettings() async {
     try {
       QBSettings? settings = await QB.settings.get();
-      SnackBarUtils.showResult(_scaffoldKey, "The credentials were loaded");
+      SnackBarUtils.showResult(_scaffoldKey, "The settings were loaded");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
   }
 
-  Future<void> enableCarbons() async {
+  Future<void> _enableCarbons() async {
     try {
       await QB.settings.enableCarbons();
       SnackBarUtils.showResult(_scaffoldKey, "Carbon was enabled");
@@ -84,7 +78,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Future<void> disableCarbons() async {
+  Future<void> _disableCarbons() async {
     try {
       await QB.settings.disableCarbons();
       SnackBarUtils.showResult(_scaffoldKey, "Carbon was disabled");
@@ -93,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Future<void> initStreamManagement() async {
+  Future<void> _initStreamManagement() async {
     bool autoReconnect = true;
     int MESSAGE_TIMEOUT = 3;
     try {
@@ -104,12 +98,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Future<void> enableAutoReconnect() async {
+  Future<void> _enableAutoReconnect() async {
     try {
       await QB.settings.enableAutoReconnect(true);
       SnackBarUtils.showResult(_scaffoldKey, "Auto reconnect was enabled");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
+  }
+
+  Future<void> _enableLogging() async {
+    QB.settings.enableLogging();
+    QB.settings.enableXMPPLogging();
+    SnackBarUtils.showResult(_scaffoldKey, "Logging were enabled");
+  }
+
+  Future<void> _disableLogging() async {
+    QB.settings.disableLogging();
+    QB.settings.disableXMPPLogging();
+    SnackBarUtils.showResult(_scaffoldKey, "Logging were disabled");
   }
 }

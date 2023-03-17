@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:quickblox_sdk/auth/constants.dart';
 import 'package:quickblox_sdk/auth/module.dart';
 import 'package:quickblox_sdk/models/qb_session.dart';
 import 'package:quickblox_sdk/models/qb_user.dart';
@@ -18,6 +19,13 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  StreamSubscription? _sessionExpiredSubscription;
+
+  @override
+  void dispose() {
+    super.dispose();
+    _unsubscribeSessionExpired();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +37,9 @@ class _AuthScreenState extends State<AuthScreen> {
           _buildButton('login', () => login()),
           _buildButton('logout', () => logout()),
           _buildButton('set session', () => setSession()),
-          _buildButton('get session', () => getSession())
+          _buildButton('get session', () => getSession()),
+          _buildButton('subscribe session expired', () => _subscribeSessionExpired()),
+          _buildButton('unsubscribe session expired', () => _unsubscribeSessionExpired())
         ])));
   }
 
@@ -109,5 +119,27 @@ class _AuthScreenState extends State<AuthScreen> {
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
+  }
+
+  Future<void> _subscribeSessionExpired() async {
+    if (_sessionExpiredSubscription != null) {
+      SnackBarUtils.showResult(_scaffoldKey, "You already have a subscription for: " + QBAuthEvents.SESSION_EXPIRED);
+      return;
+    }
+
+    try {
+      _sessionExpiredSubscription = await QB.auth.subscribeAuthEvent(QBAuthEvents.SESSION_EXPIRED, (data) {
+        DialogUtils.showError(context, PlatformException(message: "The session expired", code: ""));
+      });
+      SnackBarUtils.showResult(_scaffoldKey, "Subscribed");
+    } on PlatformException catch (e) {
+      DialogUtils.showError(context, e);
+    }
+  }
+
+  Future<void> _unsubscribeSessionExpired() async {
+    _sessionExpiredSubscription?.cancel();
+    _sessionExpiredSubscription = null;
+    SnackBarUtils.showResult(_scaffoldKey, "Unsubscribed");
   }
 }
