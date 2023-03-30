@@ -49,5 +49,7 @@
     <string></string>
     <key>NSMicrophoneUsageDescription</key>
     <string>$(PRODUCT_NAME) would like to use your microphone to provide ability to record audio messages</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 </dict>
 </plist>
