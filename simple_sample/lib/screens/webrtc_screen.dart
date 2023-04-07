@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:core';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -340,13 +341,13 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
   }
 
   Future<bool> _checkPermissions() async {
-    bool bluetoothDenied = await Permission.bluetoothConnect.status.isDenied;
     bool cameraDenied = await Permission.camera.status.isDenied;
     bool microphoneDenied = await Permission.microphone.status.isDenied;
+    bool bluetoothDenied = Platform.isAndroid ? await Permission.bluetoothConnect.status.isDenied : false;
 
     bool isAllPermissionsGranted = true;
 
-    if (bluetoothDenied || cameraDenied || microphoneDenied) {
+    if (cameraDenied || microphoneDenied || bluetoothDenied) {
       Map<Permission, PermissionStatus> statuses =
           await [Permission.bluetoothConnect, Permission.camera, Permission.microphone].request();
 
