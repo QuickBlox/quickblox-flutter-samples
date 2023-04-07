@@ -341,17 +341,13 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
   }
 
   Future<bool> _checkPermissions() async {
-    // if (Platform.isIOS) {
-    //   return true;
-    // }
-    // bool bluetoothDenied = await Permission.bluetoothConnect.status.isDenied;
     bool cameraDenied = await Permission.camera.status.isDenied;
     bool microphoneDenied = await Permission.microphone.status.isDenied;
+    bool bluetoothDenied = Platform.isAndroid ? await Permission.bluetoothConnect.status.isDenied : false;
 
     bool isAllPermissionsGranted = true;
 
-    // if (bluetoothDenied || cameraDenied || microphoneDenied) {
-    if ( cameraDenied || microphoneDenied) {
+    if (cameraDenied || microphoneDenied || bluetoothDenied) {
       Map<Permission, PermissionStatus> statuses =
           await [Permission.bluetoothConnect, Permission.camera, Permission.microphone].request();
 
