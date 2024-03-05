@@ -344,21 +344,34 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
     bool cameraDenied = await Permission.camera.status.isDenied;
     bool microphoneDenied = await Permission.microphone.status.isDenied;
     bool bluetoothDenied = Platform.isAndroid ? await Permission.bluetoothConnect.status.isDenied : false;
+    bool notificationDenied = Platform.isAndroid ? await Permission.notification.status.isDenied : false;
 
     bool isAllPermissionsGranted = true;
 
-    if (cameraDenied || microphoneDenied || bluetoothDenied) {
-      Map<Permission, PermissionStatus> statuses =
-          await [Permission.bluetoothConnect, Permission.camera, Permission.microphone].request();
+    if (cameraDenied || microphoneDenied || bluetoothDenied || notificationDenied) {
+      Map<Permission, PermissionStatus> permissionStates = await getCurrentPermissionStates();
 
-      statuses.forEach((key, value) {
-        if (value == PermissionStatus.denied || value == PermissionStatus.permanentlyDenied) {
+      permissionStates.forEach((key, value) {
+        bool isPermissionDenied = value == PermissionStatus.denied || value == PermissionStatus.permanentlyDenied;
+        if (isPermissionDenied) {
           isAllPermissionsGranted = false;
         }
       });
     }
 
     return isAllPermissionsGranted;
+  }
+
+  Future<Map<Permission, PermissionStatus>> getCurrentPermissionStates() async {
+    List<Permission> permissions = [Permission.camera, Permission.microphone];
+
+    if (Platform.isAndroid) {
+      permissions.add(Permission.bluetoothConnect);
+      permissions.add(Permission.notification);
+    }
+
+    Map<Permission, PermissionStatus> statuses = await permissions.request();
+    return statuses;
   }
 
   Future<void> _mirrorCamera() async {
