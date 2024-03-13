@@ -11,8 +11,14 @@ import 'package:quickblox_sdk_example/credentials.dart';
 import 'package:quickblox_sdk_example/data_holder.dart';
 import 'package:quickblox_sdk_example/utils/dialog_utils.dart';
 import 'package:quickblox_sdk_example/utils/snackbar_utils.dart';
+import 'package:quickblox_sdk_example/widgets/blue_app_bar.dart';
+import 'package:quickblox_sdk_example/widgets/blue_button.dart';
 
 class AuthScreen extends StatefulWidget {
+  static show(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => AuthScreen()));
+  }
+
   @override
   State<StatefulWidget> createState() => _AuthScreenState();
 }
@@ -31,32 +37,16 @@ class _AuthScreenState extends State<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: _buildAppBar(),
+        appBar: BlueAppBar('Auth'),
         body: Center(
             child: Column(children: [
-          _buildButton('login', () => login()),
-          _buildButton('logout', () => logout()),
-          _buildButton('set session', () => setSession()),
-          _buildButton('get session', () => getSession()),
-          _buildButton('subscribe session expired', () => _subscribeSessionExpired()),
-          _buildButton('unsubscribe session expired', () => _unsubscribeSessionExpired())
+          BlueButton('login', () => login()),
+          BlueButton('logout', () => logout()),
+          BlueButton('set session', () => setSession()),
+          BlueButton('get session', () => getSession()),
+          BlueButton('subscribe session expired', () => _subscribeSessionExpired()),
+          BlueButton('unsubscribe session expired', () => _unsubscribeSessionExpired())
         ])));
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-        title: const Text('Auth'),
-        centerTitle: true,
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
-  }
-
-  Widget _buildButton(String title, Function? callback) {
-    return MaterialButton(
-        minWidth: 200,
-        child: Text(title),
-        color: Theme.of(context).primaryColor,
-        textColor: Colors.white,
-        onPressed: () => callback?.call());
   }
 
   Future<void> login() async {

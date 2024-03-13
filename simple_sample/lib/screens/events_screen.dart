@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:core';
 
 import 'package:flutter/material.dart';
@@ -9,8 +8,14 @@ import 'package:quickblox_sdk/quickblox_sdk.dart';
 import 'package:quickblox_sdk_example/credentials.dart';
 import 'package:quickblox_sdk_example/utils/dialog_utils.dart';
 import 'package:quickblox_sdk_example/utils/snackbar_utils.dart';
+import 'package:quickblox_sdk_example/widgets/blue_app_bar.dart';
+import 'package:quickblox_sdk_example/widgets/blue_button.dart';
 
 class EventsScreen extends StatefulWidget {
+  static show(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => EventsScreen()));
+  }
+
   @override
   State<StatefulWidget> createState() => _EventsScreenState();
 }
@@ -24,31 +29,15 @@ class _EventsScreenState extends State<EventsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: _buildAppBar(),
+        appBar: BlueAppBar('Events'),
         body: Center(
             child: Column(children: [
-          _buildButton('create notification', () => createNotification()),
-          _buildButton('update notification', () => updateNotification()),
-          _buildButton('remove notification', () => removeNotification()),
-          _buildButton('get by id notification', () => getByIdNotification()),
-          _buildButton('get notifications', () => getNotifications())
+          BlueButton('create notification', () => createNotification()),
+          BlueButton('update notification', () => updateNotification()),
+          BlueButton('remove notification', () => removeNotification()),
+          BlueButton('get by id notification', () => getByIdNotification()),
+          BlueButton('get notifications', () => getNotifications())
         ])));
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-        title: const Text('Events'),
-        centerTitle: true,
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
-  }
-
-  Widget _buildButton(String title, Function? callback) {
-    return MaterialButton(
-        minWidth: 200,
-        child: Text(title),
-        color: Theme.of(context).primaryColor,
-        textColor: Colors.white,
-        onPressed: () => callback?.call());
   }
 
   Future<void> createNotification() async {

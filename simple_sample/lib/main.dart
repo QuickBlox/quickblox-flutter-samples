@@ -10,13 +10,26 @@ import 'package:quickblox_sdk_example/screens/settings_screen.dart';
 import 'package:quickblox_sdk_example/screens/subscriptions_screen.dart';
 import 'package:quickblox_sdk_example/screens/users_screen.dart';
 import 'package:quickblox_sdk_example/screens/webrtc_screen.dart';
+import 'package:quickblox_sdk_example/widgets/blue_app_bar.dart';
+import 'package:quickblox_sdk_example/widgets/blue_button.dart';
 
 void main() => runApp(App());
 
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: MainScreen());
+    return MaterialApp(
+      home: MainScreen(),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue, primary: Colors.blue),
+        appBarTheme: AppBarTheme(
+          elevation: 4.0,
+          color: Colors.blue,
+          shadowColor: Theme.of(context).colorScheme.shadow,
+        ),
+      ),
+    );
   }
 }
 
@@ -24,35 +37,22 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: _buildAppBar(),
+        appBar: BlueAppBar('Flutter Quickblox SDK'),
         body: Center(
             child: Column(children: [
-          _buildButton(context, 'Auth', AuthScreen()),
-          _buildButton(context, 'Chat', ChatScreen()),
-          _buildButton(context, 'Custom objects', CustomObjectsScreen()),
-          _buildButton(context, 'File', ContentScreen()),
-          _buildButton(context, 'Events', EventsScreen()),
-          _buildButton(context, 'Subscriptions', SubscriptionsScreen()),
-          _buildButton(context, 'Settings', SettingsScreen()),
-          _buildButton(context, 'Users', UsersScreen()),
-          _buildButton(context, 'WebRTC', WebRTCScreen()),
-          _buildButton(context, 'Conference', ConferenceScreen()),
+          BlueButton('Auth', () => AuthScreen.show(context)),
+          BlueButton('Chat', () => ChatScreen.show(context)),
+          BlueButton('Custom objects', () => CustomObjectsScreen.show(context)),
+          BlueButton('File', () => ContentScreen.show(context)),
+          BlueButton('Events', () => EventsScreen.show(context)),
+          BlueButton('Subscriptions', () => SubscriptionsScreen.show(context)),
+          BlueButton('Settings', () => SettingsScreen.show(context)),
+          BlueButton('Users', () => UsersScreen.show(context)),
+          BlueButton('WebRTC', () => WebRTCScreen.show(context)),
+          BlueButton('Conference', () => ConferenceScreen.show(context)),
           Padding(
               padding: EdgeInsets.fromLTRB(0, 30, 0, 0),
               child: Text("USER LOGIN: $USER_LOGIN \n USER ID: $LOGGED_USER_ID", style: TextStyle(fontSize: 14)))
         ])));
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(title: const Text('Flutter Quickblox SDK'), centerTitle: true);
-  }
-
-  Widget _buildButton(BuildContext context, String title, Widget screen) {
-    return MaterialButton(
-        minWidth: 200,
-        child: Text(title),
-        color: Theme.of(context).primaryColor,
-        textColor: Colors.white,
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => screen)));
   }
 }

@@ -13,8 +13,15 @@ import 'package:quickblox_sdk/webrtc/rtc_video_view.dart';
 import 'package:quickblox_sdk_example/credentials.dart';
 import 'package:quickblox_sdk_example/utils/dialog_utils.dart';
 import 'package:quickblox_sdk_example/utils/snackbar_utils.dart';
+import 'package:quickblox_sdk_example/widgets/blue_app_bar.dart';
+
+import '../widgets/blue_button.dart';
 
 class WebRTCScreen extends StatefulWidget {
+  static show(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => WebRTCScreen()));
+  }
+
   @override
   State<StatefulWidget> createState() => _WebRTCScreenState();
 }
@@ -55,40 +62,40 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: _buildAppBar(),
+        appBar: BlueAppBar('WebRTC'),
         body: Center(
             child: SingleChildScrollView(
                 child: Column(children: [
-          _buildButton('init WebRTC', () => _initWebRTC()),
-          _buildButton('release WebRTC', () => _releaseWebRTC()),
-          _buildButton('release Video Views', () => _releaseVideoViews()),
-          _buildButton('get WebRTC session', () => _getCallSession()),
-          _buildButton('make video call', () {
+          BlueButton('init WebRTC', () => _initWebRTC()),
+          BlueButton('release WebRTC', () => _releaseWebRTC()),
+          BlueButton('release Video Views', () => _releaseVideoViews()),
+          BlueButton('get WebRTC session', () => _getCallSession()),
+          BlueButton('make video call', () {
             _createCall(QBRTCSessionTypes.VIDEO);
             setState(() => _isVideoCall = true);
           }),
-          _buildButton('make audio call', () {
+          BlueButton('make audio call', () {
             _createCall(QBRTCSessionTypes.AUDIO);
             setState(() => _isVideoCall = false);
           }),
-          _buildButton('hangup call', () => _hangUpCall()),
-          _buildButton('disable video', () => _enableVideo(false)),
-          _buildButton('enable video', () => _enableVideo(true)),
-          _buildButton('disable audio', () => _enableAudio(false)),
-          _buildButton('enable audio', () => _enableAudio(true)),
-          _buildButton('switch camera', () => _switchCamera()),
-          _buildButton('mirror camera', () => _mirrorCamera()),
-          _buildButton('switch audio to LOUDSPEAKER', () => _switchAudioOutput(QBRTCAudioOutputTypes.LOUDSPEAKER)),
-          _buildButton('switch audio to EARSPEAKER', () => _switchAudioOutput(QBRTCAudioOutputTypes.EARSPEAKER)),
-          _buildButton('switch audio to BLUETOOTH', () => _switchAudioOutputToBluetooth()),
-          _buildButton('subscribe events', () => _subscribeEvents()),
-          _buildButton('unsubscribe events', () => _unsubscribeEvents()),
-          _buildButton('set RTCConfigs', () => _setRTCConfigs()),
-          _buildButton('get RTCConfigs', () => _getRTCConfigs()),
-          _buildButton('set Ice Servers', () => _setIceServers()),
-          _buildButton('get Ice Servers', () => _getIceServers()),
-          _buildButton('set reconnection time interval', () => _setReconnectionTimeInterval()),
-          _buildButton('get reconnection time interval', () => _getReconnectionTimeInterval()),
+          BlueButton('hangup call', () => _hangUpCall()),
+          BlueButton('disable video', () => _enableVideo(false)),
+          BlueButton('enable video', () => _enableVideo(true)),
+          BlueButton('disable audio', () => _enableAudio(false)),
+          BlueButton('enable audio', () => _enableAudio(true)),
+          BlueButton('switch camera', () => _switchCamera()),
+          BlueButton('mirror camera', () => _mirrorCamera()),
+          BlueButton('switch audio to LOUDSPEAKER', () => _switchAudioOutput(QBRTCAudioOutputTypes.LOUDSPEAKER)),
+          BlueButton('switch audio to EARSPEAKER', () => _switchAudioOutput(QBRTCAudioOutputTypes.EARSPEAKER)),
+          BlueButton('switch audio to BLUETOOTH', () => _switchAudioOutputToBluetooth()),
+          BlueButton('subscribe events', () => _subscribeEvents()),
+          BlueButton('unsubscribe events', () => _unsubscribeEvents()),
+          BlueButton('set RTCConfigs', () => _setRTCConfigs()),
+          BlueButton('get RTCConfigs', () => _getRTCConfigs()),
+          BlueButton('set Ice Servers', () => _setIceServers()),
+          BlueButton('get Ice Servers', () => _getIceServers()),
+          BlueButton('set reconnection time interval', () => _setReconnectionTimeInterval()),
+          BlueButton('get reconnection time interval', () => _getReconnectionTimeInterval()),
           Container(margin: EdgeInsets.all(20.0), height: 1, width: double.maxFinite, color: Colors.grey),
           Visibility(
               visible: _isVideoCall,
@@ -109,22 +116,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
                     ]));
               }))
         ]))));
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-        title: const Text('WebRTC'),
-        centerTitle: true,
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
-  }
-
-  Widget _buildButton(String title, Function? callback) {
-    return MaterialButton(
-        minWidth: 200,
-        child: Text(title),
-        color: Theme.of(context).primaryColor,
-        textColor: Colors.white,
-        onPressed: () => callback?.call());
   }
 
   Widget _buildVideoView(Alignment alignment, Function(RTCVideoViewController) callback) {

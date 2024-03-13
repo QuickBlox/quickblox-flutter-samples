@@ -13,8 +13,14 @@ import 'package:quickblox_sdk/quickblox_sdk.dart';
 import 'package:quickblox_sdk_example/credentials.dart';
 import 'package:quickblox_sdk_example/utils/dialog_utils.dart';
 import 'package:quickblox_sdk_example/utils/snackbar_utils.dart';
+import 'package:quickblox_sdk_example/widgets/blue_app_bar.dart';
+import 'package:quickblox_sdk_example/widgets/blue_button.dart';
 
 class ChatScreen extends StatefulWidget {
+  static show(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ChatScreen()));
+  }
+
   @override
   State<StatefulWidget> createState() => _ChatScreenState();
 }
@@ -37,6 +43,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   StreamSubscription? _reconnectionSuccessSubscription;
 
   @override
+  void initState() {
+    super.initState();
+    QB.settings.enableXMPPLogging();
+  }
+
+  @override
   void dispose() {
     super.dispose();
 
@@ -56,83 +68,67 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: _buildAppBar(),
+        appBar: BlueAppBar('Chat'),
         body: Center(
             child: SingleChildScrollView(
                 child: Column(children: [
-          _buildButton('connect', () => connect()),
-          _buildButton('disconnect', () => disconnect()),
-          _buildButton('is connected', () => isConnected()),
-          _buildButton('ping server', () => pingServer()),
-          _buildButton('ping user', () => pingUser()),
-          _buildButton('get dialogs', () => getDialogs()),
-          _buildButton('get dialogs count', () => getDialogsCount()),
-          _buildButton('update dialog', () => updateDialog()),
-          _buildButton('create dialog', () => createDialog()),
-          _buildButton('delete dialog', () => deleteDialog()),
-          _buildButton('leave dialog', () => leaveDialog()),
-          _buildButton('join dialog', () => joinDialog()),
-          _buildButton('get online users', () => getOnlineUsers()),
-          _buildButton('send message', () => sendMessage()),
-          _buildButton('send system message', () => sendSystemMessage()),
-          _buildButton('subscribe message events', () {
+          BlueButton('connect', () => connect()),
+          BlueButton('disconnect', () => disconnect()),
+          BlueButton('is connected', () => isConnected()),
+          BlueButton('ping server', () => pingServer()),
+          BlueButton('ping user', () => pingUser()),
+          BlueButton('get dialogs', () => getDialogs()),
+          BlueButton('get dialogs count', () => getDialogsCount()),
+          BlueButton('update dialog', () => updateDialog()),
+          BlueButton('create dialog', () => createDialog()),
+          BlueButton('delete dialog', () => deleteDialog()),
+          BlueButton('leave dialog', () => leaveDialog()),
+          BlueButton('join dialog', () => joinDialog()),
+          BlueButton('get online users', () => getOnlineUsers()),
+          BlueButton('send message', () => sendMessage()),
+          BlueButton('send system message', () => sendSystemMessage()),
+          BlueButton('subscribe message events', () {
             subscribeNewMessage();
             subscribeSystemMessage();
           }),
-          _buildButton('unsubscribe message events', () {
+          BlueButton('unsubscribe message events', () {
             unsubscribeNewMessage();
             unsubscribeSystemMessage();
           }),
-          _buildButton('mark message read', () => markMessageRead()),
-          _buildButton('mark message delivered', () => markMessageDelivered()),
-          _buildButton('subscribe message status', () {
+          BlueButton('mark message read', () => markMessageRead()),
+          BlueButton('mark message delivered', () => markMessageDelivered()),
+          BlueButton('subscribe message status', () {
             subscribeMessageDelivered();
             subscribeMessageRead();
           }),
-          _buildButton('unsubscribe message status', () {
+          BlueButton('unsubscribe message status', () {
             unsubscribeDeliveredMessage();
             unsubscribeReadMessage();
           }),
-          _buildButton('send is typing', () => sendIsTyping()),
-          _buildButton('send stopped typing', () => sendStoppedTyping()),
-          _buildButton('subscribe typing', () {
+          BlueButton('send is typing', () => sendIsTyping()),
+          BlueButton('send stopped typing', () => sendStoppedTyping()),
+          BlueButton('subscribe typing', () {
             subscribeUserTyping();
             subscribeUserStopTyping();
           }),
-          _buildButton('unsubscribe typing', () {
+          BlueButton('unsubscribe typing', () {
             unsubscribeUserTyping();
             unsubscribeUserStopTyping();
           }),
-          _buildButton('get dialog messages', () => getDialogMessages()),
-          _buildButton('subscribe event connections', () {
+          BlueButton('get dialog messages', () => getDialogMessages()),
+          BlueButton('subscribe event connections', () {
             subscribeConnected();
             subscribeConnectionClosed();
             subscribeReconnectionFailed();
             subscribeReconnectionSuccess();
           }),
-          _buildButton('unsubscribe event connections', () {
+          BlueButton('unsubscribe event connections', () {
             unsubscribeConnected();
             unsubscribeConnectionClosed();
             unsubscribeReconnectionFailed();
             unsubscribeReconnectionSuccess();
           })
         ]))));
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-        title: const Text('Chat'),
-        centerTitle: true,
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
-  }
-
-  Widget _buildButton(String title, Function? callback) {
-    return MaterialButton(
-        minWidth: 200,
-        child: Text(title),
-        color: Theme.of(context).primaryColor,
-        textColor: Colors.white,
-        onPressed: () => callback?.call());
   }
 
   void connect() async {

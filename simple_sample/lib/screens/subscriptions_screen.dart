@@ -7,8 +7,14 @@ import 'package:quickblox_sdk/push/constants.dart';
 import 'package:quickblox_sdk/quickblox_sdk.dart';
 import 'package:quickblox_sdk_example/utils/dialog_utils.dart';
 import 'package:quickblox_sdk_example/utils/snackbar_utils.dart';
+import 'package:quickblox_sdk_example/widgets/blue_app_bar.dart';
+import 'package:quickblox_sdk_example/widgets/blue_button.dart';
 
 class SubscriptionsScreen extends StatefulWidget {
+  static show(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => SubscriptionsScreen()));
+  }
+
   @override
   State<StatefulWidget> createState() => _SubscriptionsScreenState();
 }
@@ -22,29 +28,13 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: _buildAppBar(),
+        appBar: BlueAppBar('Subscriptions'),
         body: Center(
             child: Column(children: [
-          _buildButton('create push subscription', () => createPushSubscription()),
-          _buildButton('get push subscriptions', () => getPushSubscriptions()),
-          _buildButton('remove push subscription', () => removePushSubscription())
+          BlueButton('create push subscription', () => createPushSubscription()),
+          BlueButton('get push subscriptions', () => getPushSubscriptions()),
+          BlueButton('remove push subscription', () => removePushSubscription())
         ])));
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-        title: const Text('Subscriptions'),
-        centerTitle: true,
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
-  }
-
-  Widget _buildButton(String title, Function? callback) {
-    return MaterialButton(
-        minWidth: 200,
-        child: Text(title),
-        color: Theme.of(context).primaryColor,
-        textColor: Colors.white,
-        onPressed: () => callback?.call());
   }
 
   Future<void> createPushSubscription() async {

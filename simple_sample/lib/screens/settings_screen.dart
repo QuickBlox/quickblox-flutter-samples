@@ -7,8 +7,14 @@ import 'package:quickblox_sdk/quickblox_sdk.dart';
 import 'package:quickblox_sdk_example/credentials.dart';
 import 'package:quickblox_sdk_example/utils/dialog_utils.dart';
 import 'package:quickblox_sdk_example/utils/snackbar_utils.dart';
+import 'package:quickblox_sdk_example/widgets/blue_app_bar.dart';
+import 'package:quickblox_sdk_example/widgets/blue_button.dart';
 
 class SettingsScreen extends StatefulWidget {
+  static show(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => SettingsScreen()));
+  }
+
   @override
   State<StatefulWidget> createState() => _SettingsScreenState();
 }
@@ -20,34 +26,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: _buildAppBar(),
+        appBar: BlueAppBar('Settings'),
         body: Center(
             child: Column(children: [
-          _buildButton('init credentials', () => init()),
-          _buildButton('get', () => getSettings()),
-          _buildButton('enable carbon', () => _enableCarbons()),
-          _buildButton('disable carbons', () => _disableCarbons()),
-          _buildButton('init stream management', () => _initStreamManagement()),
-          _buildButton('enable auto reconnect', () => _enableAutoReconnect()),
-          _buildButton('enable logging', () => _enableLogging()),
-          _buildButton('disable logging', () => _disableLogging())
+          BlueButton('init credentials', () => init()),
+          BlueButton('get', () => getSettings()),
+          BlueButton('enable carbon', () => _enableCarbons()),
+          BlueButton('disable carbons', () => _disableCarbons()),
+          BlueButton('init stream management', () => _initStreamManagement()),
+          BlueButton('enable auto reconnect', () => _enableAutoReconnect()),
+          BlueButton('enable logging', () => _enableLogging()),
+          BlueButton('disable logging', () => _disableLogging())
         ])));
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-        title: const Text('Settings'),
-        centerTitle: true,
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
-  }
-
-  Widget _buildButton(String title, Function? callback) {
-    return MaterialButton(
-        minWidth: 200,
-        child: Text(title),
-        color: Theme.of(context).primaryColor,
-        textColor: Colors.white,
-        onPressed: () => callback?.call());
   }
 
   Future<void> init() async {

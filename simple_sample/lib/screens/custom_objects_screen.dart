@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:core';
 
 import 'package:flutter/material.dart';
@@ -8,8 +7,14 @@ import 'package:quickblox_sdk/quickblox_sdk.dart';
 import 'package:quickblox_sdk_example/credentials.dart';
 import 'package:quickblox_sdk_example/utils/dialog_utils.dart';
 import 'package:quickblox_sdk_example/utils/snackbar_utils.dart';
+import 'package:quickblox_sdk_example/widgets/blue_app_bar.dart';
+import 'package:quickblox_sdk_example/widgets/blue_button.dart';
 
 class CustomObjectsScreen extends StatefulWidget {
+  static show(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => CustomObjectsScreen()));
+  }
+
   @override
   State<StatefulWidget> createState() => _CustomObjectsScreenState();
 }
@@ -23,33 +28,17 @@ class _CustomObjectsScreenState extends State<CustomObjectsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: _buildAppBar(),
+        appBar: BlueAppBar('Custom Objects'),
         body: Center(
             child: Column(children: [
-          _buildButton('create one', () => createOne()),
-          _buildButton('create multiple', () => createMultiple()),
-          _buildButton('remove', () => remove()),
-          _buildButton('get by ids', () => getByIds()),
-          _buildButton('get all', () => getAll()),
-          _buildButton('update one', () => updateOne()),
-          _buildButton('update multiple', () => updateMultiple())
+          BlueButton('create one', () => createOne()),
+          BlueButton('create multiple', () => createMultiple()),
+          BlueButton('remove', () => remove()),
+          BlueButton('get by ids', () => getByIds()),
+          BlueButton('get all', () => getAll()),
+          BlueButton('update one', () => updateOne()),
+          BlueButton('update multiple', () => updateMultiple())
         ])));
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-        title: const Text('Custom Objects'),
-        centerTitle: true,
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
-  }
-
-  Widget _buildButton(String title, Function? callback) {
-    return MaterialButton(
-        minWidth: 200,
-        child: Text(title),
-        color: Theme.of(context).primaryColor,
-        textColor: Colors.white,
-        onPressed: () => callback?.call());
   }
 
   Future<void> createOne() async {

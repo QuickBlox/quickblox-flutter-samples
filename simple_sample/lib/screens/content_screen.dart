@@ -9,8 +9,14 @@ import 'package:quickblox_sdk/models/qb_file.dart';
 import 'package:quickblox_sdk/quickblox_sdk.dart';
 import 'package:quickblox_sdk_example/utils/dialog_utils.dart';
 import 'package:quickblox_sdk_example/utils/snackbar_utils.dart';
+import 'package:quickblox_sdk_example/widgets/blue_app_bar.dart';
+import 'package:quickblox_sdk_example/widgets/blue_button.dart';
 
 class ContentScreen extends StatefulWidget {
+  static show(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ContentScreen()));
+  }
+
   @override
   State<StatefulWidget> createState() => _ContentScreenState();
 }
@@ -34,33 +40,17 @@ class _ContentScreenState extends State<ContentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: _buildAppBar(),
+        appBar: BlueAppBar('File'),
         body: Center(
             child: Column(children: [
-          _buildButton('subscribe upload progres', () => subscribeUpload()),
-          _buildButton('unsubscribe upload progress', () => unsubscribeUpload()),
-          _buildButton('upload', () => upload()),
-          _buildButton('pick file', () => pickFile()),
-          _buildButton('get info', () => getInfo()),
-          _buildButton('get public URL', () => getPublicURL()),
-          _buildButton('get private URL', () => getPrivateURL())
+          BlueButton('subscribe upload progres', () => subscribeUpload()),
+          BlueButton('unsubscribe upload progress', () => unsubscribeUpload()),
+          BlueButton('upload', () => upload()),
+          BlueButton('pick file', () => pickFile()),
+          BlueButton('get info', () => getInfo()),
+          BlueButton('get public URL', () => getPublicURL()),
+          BlueButton('get private URL', () => getPrivateURL())
         ])));
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-        title: const Text('File'),
-        centerTitle: true,
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
-  }
-
-  Widget _buildButton(String title, Function? callback) {
-    return MaterialButton(
-        minWidth: 200,
-        child: Text(title),
-        color: Theme.of(context).primaryColor,
-        textColor: Colors.white,
-        onPressed: () => callback?.call());
   }
 
   Future<void> subscribeUpload() async {

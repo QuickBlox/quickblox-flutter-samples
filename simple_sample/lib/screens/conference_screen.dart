@@ -10,8 +10,14 @@ import 'package:quickblox_sdk/quickblox_sdk.dart';
 import 'package:quickblox_sdk_example/credentials.dart';
 import 'package:quickblox_sdk_example/utils/dialog_utils.dart';
 import 'package:quickblox_sdk_example/utils/snackbar_utils.dart';
+import 'package:quickblox_sdk_example/widgets/blue_app_bar.dart';
+import 'package:quickblox_sdk_example/widgets/blue_button.dart';
 
 class ConferenceScreen extends StatefulWidget {
+  static show(BuildContext context) {
+    Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ConferenceScreen()));
+  }
+
   @override
   State<StatefulWidget> createState() => _ConferenceScreenState();
 }
@@ -47,26 +53,25 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: _buildAppBar(),
+        appBar: BlueAppBar('Conference'),
         body: Center(
             child: SingleChildScrollView(
                 child: Column(children: [
-          _buildButton('init', () => init()),
-          _buildButton('release', () => release()),
-          _buildButton('release Video Views', () => releaseVideoViews()),
-          _buildButton('create session', () => create(QBConferenceSessionTypes.VIDEO)),
-          _buildButton('join as publisher', () => joinAsPublisher(QBConferenceSessionTypes.VIDEO)),
-          _buildButton('get online participants', () => getOnlineParticipants()),
-          _buildButton('leave session', () => leaveSession()),
-          _buildButton('disable video', () => enableVideo(false)),
-          _buildButton('enable video', () => enableVideo(true)),
-          _buildButton('disable audio', () => enableAudio(false)),
-          _buildButton('enable audio', () => enableAudio(true)),
-          _buildButton('switch camera', () => switchCamera()),
-          _buildButton(
-              'switch audio to LOUDSPEAKER', () => switchAudioOutput(QBConferenceAudioOutputTypes.LOUDSPEAKER)),
-          _buildButton('switch audio to EARSPEAKER', () => switchAudioOutput(QBConferenceAudioOutputTypes.EARSPEAKER)),
-          _buildButton('subscribe Conference events', () {
+          BlueButton('init', () => init()),
+          BlueButton('release', () => release()),
+          BlueButton('release Video Views', () => releaseVideoViews()),
+          BlueButton('create session', () => create(QBConferenceSessionTypes.VIDEO)),
+          BlueButton('join as publisher', () => joinAsPublisher(QBConferenceSessionTypes.VIDEO)),
+          BlueButton('get online participants', () => getOnlineParticipants()),
+          BlueButton('leave session', () => leaveSession()),
+          BlueButton('disable video', () => enableVideo(false)),
+          BlueButton('enable video', () => enableVideo(true)),
+          BlueButton('disable audio', () => enableAudio(false)),
+          BlueButton('enable audio', () => enableAudio(true)),
+          BlueButton('switch camera', () => switchCamera()),
+          BlueButton('switch audio to LOUDSPEAKER', () => switchAudioOutput(QBConferenceAudioOutputTypes.LOUDSPEAKER)),
+          BlueButton('switch audio to EARSPEAKER', () => switchAudioOutput(QBConferenceAudioOutputTypes.EARSPEAKER)),
+          BlueButton('subscribe Conference events', () {
             subscribeVideoTrack();
             subscribeParticipantReceived();
             subscribeParticipantLeft();
@@ -74,7 +79,7 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
             subscribeConferenceClosed();
             subscribeConferenceStateChanged();
           }),
-          _buildButton('unsubscribe Conference events', () {
+          BlueButton('unsubscribe Conference events', () {
             unsubscribeVideoTrack();
             unsubscribeParticipantReceived();
             unsubscribeParticipantLeft();
@@ -100,22 +105,6 @@ class _ConferenceScreenState extends State<ConferenceScreen> {
                 ]));
           })
         ]))));
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-        title: const Text('Conference'),
-        centerTitle: true,
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop()));
-  }
-
-  Widget _buildButton(String title, Function? callback) {
-    return MaterialButton(
-        minWidth: 200,
-        child: Text(title),
-        color: Theme.of(context).primaryColor,
-        textColor: Colors.white,
-        onPressed: () => callback?.call());
   }
 
   Widget _buildVideoView(Alignment alignment, Function(ConferenceVideoViewController) callback) {
