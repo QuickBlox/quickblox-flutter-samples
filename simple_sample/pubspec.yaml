@@ -1,6 +1,7 @@
 name: quickblox_sdk_example
 description: Demonstrates how to use the quickblox_sdk plugin.
 publish_to: 'none'
+version: 1.0.1+1
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -8,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  quickblox_sdk: ^0.12.4
+  quickblox_sdk: ^0.14.0
   file_picker: ^5.2.3
   permission_handler: ^10.2.0
 
