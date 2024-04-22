@@ -1,0 +1,53 @@
+PODS:
+  - audioplayers_darwin (0.0.1):
+    - Flutter
+  - Flutter (1.0.0)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - permission_handler_apple (9.1.1):
+    - Flutter
+  - QuickBlox (2.19.0)
+  - Quickblox-WebRTC (2.8.1):
+    - QuickBlox (>= 2.7)
+  - quickblox_sdk (0.14.2):
+    - Flutter
+    - QuickBlox (~> 2.18)
+    - Quickblox-WebRTC (~> 2.7)
+
+DEPENDENCIES:
+  - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
+  - Flutter (from `Flutter`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
+  - quickblox_sdk (from `.symlinks/plugins/quickblox_sdk/ios`)
+
+SPEC REPOS:
+  trunk:
+    - QuickBlox
+    - Quickblox-WebRTC
+
+EXTERNAL SOURCES:
+  audioplayers_darwin:
+    :path: ".symlinks/plugins/audioplayers_darwin/ios"
+  Flutter:
+    :path: Flutter
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
+  quickblox_sdk:
+    :path: ".symlinks/plugins/quickblox_sdk/ios"
+
+SPEC CHECKSUMS:
+  audioplayers_darwin: 877d9a4d06331c5c374595e46e16453ac7eafa40
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
+  permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
+  QuickBlox: 3dba480339b42e77f9450773aaf4c3885463da3f
+  Quickblox-WebRTC: 10bb490c8f5ffe730a00b62549f059b386e99d8c
+  quickblox_sdk: 823736a1efcc32164069c21502ced09e48e1ff32
+
+PODFILE CHECKSUM: c4c93c5f6502fe2754f48404d3594bf779584011
+
+COCOAPODS: 1.15.2

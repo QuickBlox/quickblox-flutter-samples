@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>B46AF51E-0C1F-454C-B94D-07E1F7418CB6</title>
+    <g id="Cross-platform" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Create-new-Chat" transform="translate(-12.000000, -72.000000)">
+            <g id="Chat-/-Panels-/-Smile" transform="translate(0.000000, 64.000000)">
+                <g id="search" transform="translate(12.000000, 8.000000)">
+                    <rect id="Rectangle-Copy" fill-rule="nonzero" x="0" y="0" width="28" height="28"></rect>
+                    <rect id="Rectangle-Copy-2" stroke="#3978FC" stroke-width="2" fill-opacity="0.35" fill="#3978FC" transform="translate(11.500000, 11.500000) scale(1, -1) translate(-11.500000, -11.500000) " x="4" y="4" width="15" height="15" rx="7.5"></rect>
+                    <line x1="17" y1="17" x2="24" y2="24" id="Path-2" stroke="#3978FC" stroke-width="2" stroke-linecap="round"></line>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
