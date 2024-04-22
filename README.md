@@ -13,3 +13,4 @@
 * New Quickblox Samples:
   * [Sample Chat Flutter](https://github.com/QuickBlox/quickblox-flutter-samples/tree/master/chat_sample)
   * [Simple-sample](https://github.com/QuickBlox/quickblox-flutter-samples/tree/master/simple_sample)
+  * [Sample Video Call WebRTC](https://github.com/QuickBlox/quickblox-flutter-samples/tree/master/videocall_webrtc_sample)
