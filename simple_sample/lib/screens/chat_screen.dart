@@ -45,11 +45,18 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     QB.settings.enableXMPPLogging();
   }
 
   @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    print("LIFECYCLE_STATE: ${state.name}");
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
 
     unsubscribeNewMessage();
@@ -83,6 +90,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           BlueButton('create dialog', () => createDialog()),
           BlueButton('delete dialog', () => deleteDialog()),
           BlueButton('leave dialog', () => leaveDialog()),
+          BlueButton('is joined', () => isJoinedDialog()),
           BlueButton('join dialog', () => joinDialog()),
           BlueButton('get online users', () => getOnlineUsers()),
           BlueButton('send message', () => sendMessage()),
@@ -160,8 +168,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void pingServer() async {
     try {
-      await QB.chat.pingServer();
-      SnackBarUtils.showResult(_scaffoldKey, "The server was ping success");
+      bool isPinged = await QB.chat.pingServer();
+      SnackBarUtils.showResult(_scaffoldKey, "The server was pinged: $isPinged");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -169,8 +177,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void pingUser() async {
     try {
-      await QB.chat.pingUser(OPPONENT_ID);
-      SnackBarUtils.showResult(_scaffoldKey, "The user $OPPONENT_ID was ping success");
+      bool isPinged = await QB.chat.pingUser(OPPONENT_ID);
+      SnackBarUtils.showResult(_scaffoldKey, "The user $OPPONENT_ID was pinged: $isPinged");
     } on PlatformException catch (e) {
       DialogUtils.showError(context, e);
     }
@@ -239,7 +247,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     int dialogType = QBChatDialogTypes.GROUP_CHAT;
 
     try {
-      QBDialog? createdDialog = await QB.chat.createDialog(QBChatDialogTypes.CHAT,
+      QBDialog? createdDialog = await QB.chat.createDialog(QBChatDialogTypes.GROUP_CHAT,
           occupantsIds: occupantsIds, dialogName: dialogName, dialogPhoto: dialogPhoto);
 
       if (createdDialog != null) {
@@ -279,6 +287,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
+  void isJoinedDialog() async {
+    try {
+      bool isJoined = await QB.chat.isJoinedDialog(_dialogId!);
+      SnackBarUtils.showResult(_scaffoldKey, "The dialog is joined: $isJoined");
+    } on PlatformException catch (e) {
+      DialogUtils.showError(context, e);
+    }
+  }
+
   void getOnlineUsers() async {
     try {
       List<dynamic>? onlineUsers = await QB.chat.getOnlineUsers(_dialogId!);
@@ -303,7 +320,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       await QB.chat.sendMessage(_dialogId!, body: messageBody, saveToHistory: true, properties: properties);
       SnackBarUtils.showResult(_scaffoldKey, "The message was sent to dialog: $_dialogId");
     } on PlatformException catch (e) {
-      DialogUtils.showError(context, e);
+      PlatformException exception = PlatformException(code: "ERROR send message $e", message: "Error sending message");
+      DialogUtils.showError(context, exception);
     }
   }
 

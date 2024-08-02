@@ -33,8 +33,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           BlueButton('get', () => getSettings()),
           BlueButton('enable carbon', () => _enableCarbons()),
           BlueButton('disable carbons', () => _disableCarbons()),
-          BlueButton('init stream management', () => _initStreamManagement()),
           BlueButton('enable auto reconnect', () => _enableAutoReconnect()),
+          BlueButton('disable auto reconnect', () => _disableAutoReconnect()),
           BlueButton('enable logging', () => _enableLogging()),
           BlueButton('disable logging', () => _disableLogging())
         ])));
@@ -77,17 +77,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Future<void> _initStreamManagement() async {
-    bool autoReconnect = true;
-    int MESSAGE_TIMEOUT = 3;
-    try {
-      await QB.settings.initStreamManagement(MESSAGE_TIMEOUT, autoReconnect: autoReconnect);
-      SnackBarUtils.showResult(_scaffoldKey, "Stream management was initiated with timeout $MESSAGE_TIMEOUT");
-    } on PlatformException catch (e) {
-      DialogUtils.showError(context, e);
-    }
-  }
-
   Future<void> _enableAutoReconnect() async {
     try {
       await QB.settings.enableAutoReconnect(true);
@@ -97,15 +86,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _disableAutoReconnect() async {
+    try {
+      await QB.settings.enableAutoReconnect(false);
+      SnackBarUtils.showResult(_scaffoldKey, "Auto reconnect was disabled");
+    } on PlatformException catch (e) {
+      DialogUtils.showError(context, e);
+    }
+  }
+
   Future<void> _enableLogging() async {
-    QB.settings.enableLogging();
-    QB.settings.enableXMPPLogging();
-    SnackBarUtils.showResult(_scaffoldKey, "Logging were enabled");
+    try {
+      QB.settings.enableLogging();
+      QB.settings.enableXMPPLogging();
+      SnackBarUtils.showResult(_scaffoldKey, "Logging were enabled");
+    } on PlatformException catch (e) {
+      DialogUtils.showError(context, e);
+    }
   }
 
   Future<void> _disableLogging() async {
-    QB.settings.disableLogging();
-    QB.settings.disableXMPPLogging();
-    SnackBarUtils.showResult(_scaffoldKey, "Logging were disabled");
+    try {
+      await QB.settings.disableLogging();
+      await QB.settings.disableXMPPLogging();
+      SnackBarUtils.showResult(_scaffoldKey, "Logging were disabled");
+    } on PlatformException catch (e) {
+      DialogUtils.showError(context, e);
+    }
   }
 }
