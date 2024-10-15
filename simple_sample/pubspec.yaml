@@ -9,7 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  quickblox_sdk: ^0.14.0
+#  quickblox_sdk: ^0.16.1
+
+  quickblox_sdk:
+    path: ../../private-flutter-sdk/
+
+  win32: ^5.5.3
   file_picker: ^5.2.3
   permission_handler: ^10.2.0
 

@@ -28,7 +28,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  String? _dialogId;
+  String? _dialogId = DIALOG_ID;
   String? _messageId;
 
   StreamSubscription? _newMessageSubscription;
@@ -244,8 +244,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     String dialogName = "FLUTTER_CHAT_" + DateTime.now().millisecond.toString();
     String dialogPhoto = "some photo url";
 
-    int dialogType = QBChatDialogTypes.GROUP_CHAT;
-
     try {
       QBDialog? createdDialog = await QB.chat.createDialog(QBChatDialogTypes.GROUP_CHAT,
           occupantsIds: occupantsIds, dialogName: dialogName, dialogPhoto: dialogPhoto);
@@ -348,7 +346,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         Map<dynamic, dynamic> payload = Map<dynamic, dynamic>.from(map["payload"]);
         _messageId = payload["id"] as String;
 
-        SnackBarUtils.showResult(_scaffoldKey, "Received message: \n ${payload["body"]}");
+        SnackBarUtils.showResult(
+            _scaffoldKey, "Received message: \n ${payload["body"]} \n From dialog: \n ${payload["dialogId"]}");
       });
       SnackBarUtils.showResult(_scaffoldKey, "Subscribed: " + QBChatEvents.RECEIVED_NEW_MESSAGE);
     } on PlatformException catch (e) {

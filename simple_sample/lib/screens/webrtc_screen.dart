@@ -84,7 +84,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
           BlueButton('disable audio', () => _enableAudio(false)),
           BlueButton('enable audio', () => _enableAudio(true)),
           BlueButton('switch camera', () => _switchCamera()),
-          BlueButton('mirror camera', () => _mirrorCamera()),
           BlueButton('switch audio to LOUDSPEAKER', () => _switchAudioOutput(QBRTCAudioOutputTypes.LOUDSPEAKER)),
           BlueButton('switch audio to EARSPEAKER', () => _switchAudioOutput(QBRTCAudioOutputTypes.EARSPEAKER)),
           BlueButton('switch audio to BLUETOOTH', () => _switchAudioOutputToBluetooth()),
@@ -363,15 +362,6 @@ class _WebRTCScreenState extends State<WebRTCScreen> {
 
     Map<Permission, PermissionStatus> statuses = await permissions.request();
     return statuses;
-  }
-
-  Future<void> _mirrorCamera() async {
-    try {
-      await QB.webrtc.mirrorCamera(LOGGED_USER_ID, true);
-      SnackBarUtils.showResult(_scaffoldKey, "Camera was switched");
-    } on PlatformException catch (e) {
-      DialogUtils.showError(context, e);
-    }
   }
 
   Future<void> _switchAudioOutput(int output) async {
