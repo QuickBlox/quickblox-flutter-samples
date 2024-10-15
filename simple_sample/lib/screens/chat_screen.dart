@@ -315,7 +315,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       properties["testProperty2"] = "testPropertyValue2";
       properties["testProperty3"] = "testPropertyValue3";
 
-      await QB.chat.sendMessage(_dialogId!, body: messageBody, saveToHistory: true, properties: properties);
+      await QB.chat.sendMessage(_dialogId!, body: messageBody, saveToHistory: false, properties: properties);
       SnackBarUtils.showResult(_scaffoldKey, "The message was sent to dialog: $_dialogId");
     } on PlatformException catch (e) {
       PlatformException exception = PlatformException(code: "ERROR send message $e", message: "Error sending message");
