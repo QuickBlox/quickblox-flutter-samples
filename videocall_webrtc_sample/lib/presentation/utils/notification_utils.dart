@@ -18,7 +18,7 @@ class NotificationUtils {
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black87,
-        duration: const Duration(days: 365),
+        duration: Duration(seconds: errorCallback == null ? 5 : 600),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(5),
@@ -86,9 +86,12 @@ class NotificationUtils {
   }
 
   static void hideSnackBar(BuildContext context) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar(
-      reason: SnackBarClosedReason.dismiss,
-    );
+    final scaffoldMessenger = ScaffoldMessenger.maybeOf(context);
+    if (scaffoldMessenger != null) {
+      scaffoldMessenger.hideCurrentSnackBar(
+        reason: SnackBarClosedReason.dismiss,
+      );
+    }
   }
 
   static void showResult(BuildContext context, String text) {

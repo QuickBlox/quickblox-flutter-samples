@@ -7,13 +7,15 @@ PODS:
     - FlutterMacOS
   - permission_handler_apple (9.1.1):
     - Flutter
-  - QuickBlox (2.19.0)
-  - Quickblox-WebRTC (2.8.1):
-    - QuickBlox (>= 2.7)
-  - quickblox_sdk (0.14.2):
+  - QBGoogleWebRTC (124.0.2)
+  - QuickBlox (2.20.0)
+  - Quickblox-WebRTC (3.1.0):
+    - QBGoogleWebRTC (>= 124.0)
+    - QuickBlox (>= 2.20)
+  - quickblox_sdk (0.16.2):
     - Flutter
-    - QuickBlox (~> 2.18)
-    - Quickblox-WebRTC (~> 2.7)
+    - QuickBlox (~> 2.20)
+    - Quickblox-WebRTC (~> 3.1)
 
 DEPENDENCIES:
   - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/ios`)
@@ -24,6 +26,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - QBGoogleWebRTC
     - QuickBlox
     - Quickblox-WebRTC
 
@@ -44,9 +47,10 @@ SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
-  QuickBlox: 3dba480339b42e77f9450773aaf4c3885463da3f
-  Quickblox-WebRTC: 10bb490c8f5ffe730a00b62549f059b386e99d8c
-  quickblox_sdk: 823736a1efcc32164069c21502ced09e48e1ff32
+  QBGoogleWebRTC: 1391bfd075620e01512d2c334c7463c03f14467f
+  QuickBlox: e3ba718b7a195a6569c3e0eb33918d9ee1014f66
+  Quickblox-WebRTC: f9c4f73be00b207e88fdfc6f2b592f1deb669aec
+  quickblox_sdk: d71a4523df7358b7837eac82f04f4c47294762dc
 
 PODFILE CHECKSUM: c4c93c5f6502fe2754f48404d3594bf779584011
 

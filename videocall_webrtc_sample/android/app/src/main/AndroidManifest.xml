@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.quickblox.videocall_webrtc_sample">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!--//TODO: need to delete permissions, should be in SDK after update-->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />

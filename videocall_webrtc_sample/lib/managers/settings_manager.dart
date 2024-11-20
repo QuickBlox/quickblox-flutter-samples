@@ -15,10 +15,6 @@ class SettingsManager {
     return await QB.settings.get();
   }
 
-  Future<void> initStreamManagement(bool autoReconnect, int messageTimeout) async {
-    await QB.settings.initStreamManagement(messageTimeout, autoReconnect: autoReconnect);
-  }
-
   Future<void> enableXMPPLogging() async {
     await QB.settings.enableXMPPLogging();
   }

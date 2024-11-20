@@ -22,16 +22,21 @@ class LoginButton extends StatelessWidget {
                 callback(context);
             },
             style: ButtonStyle(
-              elevation: MaterialStateProperty.resolveWith(
-                      (states) => states.contains(MaterialState.disabled) ? null : 3),
-              shadowColor: MaterialStateProperty.resolveWith((states) =>
-              states.contains(MaterialState.disabled)
+              elevation: WidgetStateProperty.resolveWith(
+                      (states) => states.contains(WidgetState.disabled) ? null : 3),
+              shadowColor: WidgetStateProperty.resolveWith((states) =>
+              states.contains(WidgetState.disabled)
                   ? const Color(0xff99a9c6)
                   : const Color(0x403978fc)),
-              backgroundColor: MaterialStateProperty.resolveWith((states) =>
-              states.contains(MaterialState.disabled)
+              backgroundColor: WidgetStateProperty.resolveWith((states) =>
+              states.contains(WidgetState.disabled)
                   ? const Color(0xff99a9c6)
                   : const Color(0xff3978fc)),
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.0),
+                ),
+              ),
             ),
             child: Container(
               padding: const EdgeInsets.only(top: 12, bottom: 12),
