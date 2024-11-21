@@ -66,9 +66,13 @@ class _DialogsListItemState extends State<DialogsListItem> {
                     Text(_formatString(_dialog.name!),
                         style: TextStyle(fontSize: 17), overflow: TextOverflow.ellipsis),
                     Padding(padding: EdgeInsets.only(top: 2)),
-                    Text(_dialog.lastMessage != null ? _formatString(_dialog.lastMessage!) : "",
+                    Flexible(
+                      child: Text(
+                        _dialog.lastMessage != null ? _formatString(_dialog.lastMessage!) : "",
                         style: TextStyle(fontSize: 15, color: Color(0xFF6C7A92)),
-                        overflow: TextOverflow.ellipsis),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                     Padding(
                       padding: EdgeInsets.only(top: 1),
                     ),
@@ -119,8 +123,8 @@ class _DialogsListItemState extends State<DialogsListItem> {
             padding: EdgeInsets.only(top: 12),
             child: Checkbox(
                 value: _isSelected,
-                fillColor: MaterialStateColor.resolveWith((states) =>
-                    states.contains(MaterialState.selected) ? Colors.blue : Colors.grey),
+                fillColor: WidgetStateColor.resolveWith(
+                        (states) => states.contains(WidgetState.selected) ? Colors.blue : Colors.white),
                 checkColor: Colors.white,
                 activeColor: Colors.grey,
                 onChanged: (bool? changed) {

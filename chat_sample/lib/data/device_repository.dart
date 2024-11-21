@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
 
 /// Created by Injoit in 2021.
@@ -17,7 +17,7 @@ class DeviceRepository {
   DeviceRepository._instance();
 
   final Connectivity _connectivity = Connectivity();
-  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   Set<ConnectionListener> _connectionListenersSet = HashSet<ConnectionListener>();
 
@@ -35,7 +35,7 @@ class DeviceRepository {
   }
 
   Future<ConnectionType> checkInternetConnection() async {
-    ConnectivityResult result = ConnectivityResult.none;
+    List<ConnectivityResult> result = [ConnectivityResult.none];
     try {
       result = await _connectivity.checkConnectivity();
     } on PlatformException catch (e) {
@@ -44,16 +44,13 @@ class DeviceRepository {
     return _getConnectionType(result);
   }
 
-  ConnectionType _getConnectionType(ConnectivityResult result) {
-    switch (result) {
-      case ConnectivityResult.wifi:
-        return ConnectionType.wifi;
-      case ConnectivityResult.mobile:
-        return ConnectionType.mobile;
-      case ConnectivityResult.none:
-        return ConnectionType.none;
-      default:
-        return ConnectionType.none;
+  ConnectionType _getConnectionType(List<ConnectivityResult> result) {
+    if (result.contains(ConnectivityResult.wifi)) {
+      return ConnectionType.wifi;
+    } else if (result.contains(ConnectivityResult.mobile)) {
+      return ConnectionType.mobile;
+    } else {
+      return ConnectionType.none;
     }
   }
 
@@ -73,7 +70,7 @@ class DeviceRepository {
   }
 }
 
-class ConnectionListener {
+mixin class ConnectionListener {
   String? tag;
 
   void setConnectionListenerTag(String tag) {

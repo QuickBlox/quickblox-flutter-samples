@@ -4,7 +4,6 @@ import 'package:chat_sample/bloc/select_users/select_users_screen_events.dart';
 import 'package:chat_sample/models/user_wrapper.dart';
 import 'package:chat_sample/presentation/utils/color_util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
 /// Created by Injoit on 2021.
@@ -63,8 +62,8 @@ class _SelectUsersScreenItemState extends State<SelectUsersScreenItem>
             padding: EdgeInsets.only(top: 6),
             child: Checkbox(
                 value: _isSelected,
-                fillColor: MaterialStateColor.resolveWith((states) =>
-                    states.contains(MaterialState.selected) ? Colors.blue : Colors.grey),
+                fillColor: WidgetStateColor.resolveWith(
+                    (states) => states.contains(WidgetState.selected) ? Colors.blue : Colors.white),
                 checkColor: Colors.white,
                 activeColor: Colors.grey,
                 onChanged: (bool? changed) {

@@ -156,6 +156,12 @@ class DialogsScreenBloc extends Bloc<DialogsScreenEvents, DialogsScreenStates, v
     }
 
     try {
+      bool isNotExistInternetConnection = !await checkInternetConnection();
+      if (isNotExistInternetConnection) {
+        states?.add(ConnectionTypeChanged(false, false));
+        return;
+      }
+
       bool connected = await _chatRepository.isConnected() ?? false;
       if (connected) {
         await _updateDialogs();

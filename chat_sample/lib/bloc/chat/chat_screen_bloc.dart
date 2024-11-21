@@ -442,6 +442,11 @@ class ChatScreenBloc extends Bloc<ChatScreenEvents, ChatScreenStates, ChatArgume
       states?.add(ChatConnectingErrorState("UserId is null"));
     }
     try {
+      bool isNotExistInternetConnection = !await checkInternetConnection();
+      if (isNotExistInternetConnection) {
+        return;
+      }
+
       bool connected = await _chatRepository.isConnected() ?? false;
       if (connected) {
         states?.add(ChatConnectedState(_localUserId!));

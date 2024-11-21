@@ -1,7 +1,7 @@
 import 'package:chat_sample/bloc/app_info/app_info_screen_states.dart';
 import 'package:chat_sample/data/settings_repository.dart';
 import 'package:flutter/services.dart';
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:quickblox_sdk/models/qb_settings.dart';
 
 import '../base_bloc.dart';

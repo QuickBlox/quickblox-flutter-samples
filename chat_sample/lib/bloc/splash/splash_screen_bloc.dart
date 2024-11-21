@@ -33,7 +33,6 @@ class SplashScreenBloc extends Bloc<SplashScreenEvents, SplashScreenStates, void
   Future<void> _setSettings() async {
     try {
       await _settingsRepository.init(APPLICATION_ID, AUTH_KEY, AUTH_SECRET, ACCOUNT_KEY);
-      await _settingsRepository.initStreamManagement(true, 5);
       // for testing
       await _settingsRepository.enableXMPPLogging();
       await _settingsRepository.enableLogging();

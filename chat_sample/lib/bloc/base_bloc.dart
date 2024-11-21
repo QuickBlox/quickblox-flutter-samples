@@ -34,6 +34,16 @@ class Bloc<E, S, A> implements BaseBloc<A> {
 
   void setArgs(A args) {}
 
+  Future<bool> checkInternetConnection() async {
+    bool isExistInternetConnection = true;
+
+    ConnectionType connectionType = await _deviceRepository.checkInternetConnection();
+    if (connectionType == ConnectionType.none) {
+      isExistInternetConnection = false;
+    }
+    return isExistInternetConnection;
+  }
+
   void dispose() {
     _eventController?.close();
     _stateController?.close();

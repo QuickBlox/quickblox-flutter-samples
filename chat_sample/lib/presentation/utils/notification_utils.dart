@@ -15,7 +15,7 @@ class NotificationBarUtils {
         .showSnackBar(SnackBar(
           content: Text(errorMessage, style: TextStyle(color: Colors.white)),
           backgroundColor: Colors.black87,
-          duration: Duration(days: 365),
+          duration: Duration(seconds: errorCallback == null  ? 3 : 6000),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.all(8.0),

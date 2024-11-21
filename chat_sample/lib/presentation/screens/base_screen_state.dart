@@ -35,7 +35,8 @@ abstract class BaseScreenState<T extends Bloc> extends State<StatefulWidget>
         break;
       case AppLifecycleState.inactive:
       case AppLifecycleState.detached:
-        break;
+      case AppLifecycleState.hidden:
+      break;
     }
   }
 

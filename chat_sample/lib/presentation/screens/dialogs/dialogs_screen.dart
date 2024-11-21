@@ -263,17 +263,21 @@ class _DialogsScreenState extends BaseScreenState<DialogsScreenBloc> {
           Navigator.pop(context);
           bloc?.events?.add(LogoutEvent());
         },
-        child: Text("Logout"));
+        child: Text("Logout", style: TextStyle(color: Colors.blue)));
 
     Widget cancelButton = TextButton(
         onPressed: () {
           Navigator.pop(context);
         },
-        child: Text("Cancel"));
+        child: Text("Cancel", style: TextStyle(color: Colors.blue)));
 
     AlertDialog alert = AlertDialog(
         backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4.0),
+        ),
         content: Text("Press Logout to continue"),
+        actionsPadding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
         actions: [okButton, cancelButton]);
 
     showDialog(

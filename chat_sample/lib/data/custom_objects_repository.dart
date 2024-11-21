@@ -53,8 +53,7 @@ class CustomObjectsRepository {
 
   Future<void> updateCustomObject(String className, String objectId) async {
     try {
-      QBCustomObject? customObject = await QB.data.update(className, id: objectId);
-      String? id = customObject?.id;
+      List<QBCustomObject?>? customObjects = await QB.data.update(className, id: objectId);
     } on PlatformException catch (e) {
       throw RepositoryException(e.message);
     }

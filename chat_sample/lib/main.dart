@@ -56,10 +56,17 @@ class App extends StatelessWidget {
         title: 'Chat sample',
         theme: ThemeData(
           scaffoldBackgroundColor: Colors.white,
-          accentColor: Colors.blue,
+          hintColor: Colors.blue,
+          indicatorColor: Colors.blue,
           textTheme: Theme.of(context).textTheme.apply(bodyColor: Colors.black87),
           brightness: Brightness.dark,
           primarySwatch: Colors.blue,
+          progressIndicatorTheme: ProgressIndicatorThemeData(
+            color: Colors.blue,
+          ),
+          textSelectionTheme: TextSelectionThemeData(
+            cursorColor: Colors.blue,
+          ),
         ),
         navigatorKey: NavigationService().navigatorKey,
         onGenerateRoute: router.generateRoute,

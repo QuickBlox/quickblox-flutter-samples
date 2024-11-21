@@ -266,6 +266,11 @@ class SelectUsersScreenBloc extends Bloc<SelectUsersScreenEvents, SelectUsersScr
 
   Future<void> _connectChat() async {
     try {
+      bool isNotExistInternetConnection = !await checkInternetConnection();
+      if (isNotExistInternetConnection) {
+        return;
+      }
+
       bool connected = await _chatRepository.isConnected() ?? false;
       if (!connected) {
         await _chatRepository.connect(_userId, DEFAULT_USER_PASSWORD);

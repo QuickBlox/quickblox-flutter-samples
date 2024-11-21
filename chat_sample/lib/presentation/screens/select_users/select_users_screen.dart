@@ -113,7 +113,7 @@ class _SelectUsersScreenState extends BaseScreenState<SelectUsersScreenBloc> {
             ]),
             Expanded(
                 child: RawScrollbar(
-              isAlwaysShown: false,
+              thumbVisibility: false,
               thickness: 3,
               radius: Radius.circular(3),
               thumbColor: Colors.blue,

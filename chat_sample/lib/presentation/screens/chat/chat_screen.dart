@@ -84,7 +84,7 @@ class _ChatScreenState extends BaseScreenState<ChatScreenBloc> {
               Container(
                   color: Color(0xfff1f1f1),
                   child: RawScrollbar(
-                    isAlwaysShown: false,
+                    thumbVisibility: false,
                     thickness: 3,
                     controller: _scrollController,
                     radius: Radius.circular(3),
@@ -261,11 +261,13 @@ class _ChatScreenState extends BaseScreenState<ChatScreenBloc> {
                           }
                         });
                       },
+
                       keyboardType: TextInputType.multiline,
                       minLines: 1,
                       maxLines: 4,
                       style: TextStyle(fontSize: 15.0, color: Colors.black87),
                       decoration: InputDecoration(
+                          border: InputBorder.none,
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: Colors.transparent)),
                           hintStyle: TextStyle(color: Colors.black26),
@@ -494,17 +496,21 @@ class _ChatScreenState extends BaseScreenState<ChatScreenBloc> {
           bloc?.events?.add(event);
           Navigator.pop(context, DialogsScreen.FLAG_UPDATE);
         },
-        child: Text(label));
+        child: Text(label, style: TextStyle(color: Colors.blue)));
 
     Widget cancelButton = TextButton(
         onPressed: () {
           Navigator.pop(context);
         },
-        child: Text("Cancel"));
+        child: Text("Cancel", style: TextStyle(color: Colors.blue)));
 
     AlertDialog alert = AlertDialog(
         backgroundColor: Colors.white,
         content: Text("$label chat?"),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4.0),
+        ),
+        actionsPadding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
         actions: [okButton, cancelButton]);
 
     showDialog(

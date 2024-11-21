@@ -1,10 +1,10 @@
-import 'package:chat_sample/presentation/screens/base_screen_state.dart';
 import 'package:chat_sample/bloc/login/login_screen_bloc.dart';
 import 'package:chat_sample/bloc/login/login_screen_events.dart';
 import 'package:chat_sample/bloc/login/login_screen_states.dart';
 import 'package:chat_sample/bloc/stream_builder_with_listener.dart';
 import 'package:chat_sample/presentation/navigation/navigation_service.dart';
 import 'package:chat_sample/presentation/navigation/router.dart';
+import 'package:chat_sample/presentation/screens/base_screen_state.dart';
 import 'package:chat_sample/presentation/screens/login/user_name_text_field.dart';
 import 'package:chat_sample/presentation/utils/notification_utils.dart';
 import 'package:chat_sample/presentation/widgets/decorated_app_bar.dart';
@@ -142,16 +142,22 @@ class _LoginScreenState extends BaseScreenState<LoginScreenBloc> {
                               }
                             : null,
                         style: ButtonStyle(
-                            elevation: MaterialStateProperty.resolveWith(
-                                (states) => states.contains(MaterialState.disabled) ? null : 3),
-                            shadowColor: MaterialStateProperty.resolveWith((states) =>
-                                states.contains(MaterialState.disabled)
-                                    ? Color(0xff99A9C6)
-                                    : Color(0x403978FC)),
-                            backgroundColor: MaterialStateProperty.resolveWith((states) =>
-                                states.contains(MaterialState.disabled)
-                                    ? Color(0xff99A9C6)
-                                    : Color(0xff3978FC))),
+                          elevation: WidgetStateProperty.resolveWith(
+                              (states) => states.contains(WidgetState.disabled) ? null : 3),
+                          shadowColor: WidgetStateProperty.resolveWith((states) =>
+                              states.contains(WidgetState.disabled)
+                                  ? Color(0xff99A9C6)
+                                  : Color(0x403978FC)),
+                          backgroundColor: WidgetStateProperty.resolveWith((states) =>
+                              states.contains(WidgetState.disabled)
+                                  ? Color(0xff99A9C6)
+                                  : Color(0xff3978FC)),
+                          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                          ),
+                        ),
                         child: Container(
                           padding: EdgeInsets.only(top: 12, bottom: 12),
                           child: Text(
