@@ -12,17 +12,22 @@ import 'package:videocall_webrtc_sample/dependency/dependency_impl.dart';
 import 'package:videocall_webrtc_sample/managers/auth_manager.dart';
 import 'package:videocall_webrtc_sample/managers/call_manager.dart';
 import 'package:videocall_webrtc_sample/managers/chat_manager.dart';
+import 'package:videocall_webrtc_sample/managers/push_notification_manager.dart';
 import 'package:videocall_webrtc_sample/managers/storage_manager.dart';
 import 'package:videocall_webrtc_sample/managers/users_manager.dart';
 import 'package:videocall_webrtc_sample/presentation/utils/error_parser.dart';
 
+import '../../../entities/push_notification_entity.dart';
 import '../../../entities/user_entity.dart';
 import '../../../managers/callback/call_subscription.dart';
 import '../../../managers/callback/call_subscription_impl.dart';
+import '../../../managers/callkit_manager.dart';
 import '../../../managers/permission_manager.dart';
+import '../../../managers/reject_call_manager.dart';
 import '../../base_view_model.dart';
+import '../../utils/qb_user_parser.dart';
 
-class UsersScreenViewModel extends BaseViewModel {
+class UsersScreenViewModel extends BaseViewModel with WidgetsBindingObserver {
   static const int PAGE_SIZE = 100;
 
   final AuthManager _authManager = DependencyImpl.getInstance().getAuthManager();
@@ -45,12 +50,19 @@ class UsersScreenViewModel extends BaseViewModel {
   bool searchNextUsers = false;
 
   bool isVideoCall = false;
+  List<QBUser> opponents = [];
 
   bool receivedCall = false;
+  bool acceptedCall = false;
+
+  PushNotificationEntity? entity;
+
   CallSubscription? _callSubscription;
 
-  List<QBUser?> getSelectedQbUsers() {
-    List<QBUser?> unwrapped = [];
+  int? callerId;
+
+  List<QBUser> getSelectedQbUsers() {
+    List<QBUser> unwrapped = [];
     for (var element in selectedUsersSet) {
       unwrapped.add(element.user);
     }
@@ -71,7 +83,8 @@ class UsersScreenViewModel extends BaseViewModel {
     if (isNotConnectedToChat) {
       await connectToChat();
     }
-
+    subscribeToAcceptClick();
+    subscribeToRejectClick();
     await _initWebRTC();
 
     _callSubscription = _createCallSubscription();
@@ -83,8 +96,7 @@ class UsersScreenViewModel extends BaseViewModel {
   Future<void> _checkNotificationPermission() async {
     bool isNotGranted = !await _permissionManager.checkNotificationPermission();
     if (isNotGranted) {
-      _showError(
-          "The requested permissions are required for the application to function correctly.");
+      _showError("The requested permissions are required for the application to function correctly.");
     }
   }
 
@@ -101,16 +113,116 @@ class UsersScreenViewModel extends BaseViewModel {
   @override
   void dispose() {
     _unsubscribeCall();
+    CallkitManager.unsubscribeAcceptCall("UsersScreen");
     super.dispose();
   }
 
-  Future<void> startAudioCall() async {
+  void setReceivedCall(bool value) {
+    receivedCall = value;
+    notifyListeners();
+  }
+
+  void setAcceptedCall(bool value) {
+    acceptedCall = value;
+    notifyListeners();
+  }
+
+  Future<void> startAudioCallAndSendPushIfNeed() async {
     try {
-      await _callManager.startAudioCall(getSelectedQbUsers());
-      receivedCall = false;
+      Map<String, Object> userInfo = {};
+      List<QBUser> opponents = getSelectedQbUsers();
+
+      QBUser loggedUser = await getLoggedUser();
+      opponents.insert(0, loggedUser);
+
+      String json = QBUserParser.serializeOpponents(opponents);
+      userInfo['opponents'] = json;
+
+      await _callManager.startAudioCall(getSelectedQbUsers(), userInfo: userInfo);
+
+      opponents.remove(loggedUser);
+      await CallkitManager.showOutgoingCall(opponents, false);
+
+      _sendPushNotifications(getSelectedQbUsers());
+      setReceivedCall(false);
     } on PlatformException catch (e) {
       showError(ErrorParser.parseFrom(e));
     }
+  }
+
+  Future<QBUser> getLoggedUser() async {
+    QBUser loggedUSer = QBUser();
+    loggedUSer.id = await getCurrentUserId();
+    loggedUSer.fullName = await getCurrentUserName();
+    return loggedUSer;
+  }
+
+  Future<void> _sendPushNotifications(List<QBUser> users) async {
+    int senderId = await getCurrentUserId();
+
+    for (QBUser user in users) {
+      if (user.id != senderId) {
+        String senderName = await getCurrentUserName();
+
+        String sessionId = getCallSessionId();
+        _sendPushNotification([user.id], users, ConferenceType.AUDIO, senderId, senderName, sessionId);
+      }
+    }
+  }
+
+  Future<void> _sendPushNotification(List<int?> recipientIds, List<QBUser> opponents, ConferenceType conferenceType,
+      int senderId, String senderName, String sessionId) async {
+    List<String> recipientIdsInString = _parseListIntToString(recipientIds);
+    PushNotificationEntity entity = PushNotificationEntity(
+      timestamp: DateTime.now().millisecondsSinceEpoch.toString(),
+      senderId: senderId,
+      senderName: senderName,
+      sessionId: sessionId,
+      opponents: opponents,
+      recipientIds: recipientIdsInString,
+      conferenceType: conferenceType,
+      body: senderName,
+    );
+
+    PushNotificationManager().sendNotification(entity);
+  }
+
+  List<String> _parseListIntToString(List<int?> list) {
+    return list.where((e) => e != null).map((e) => e.toString()).toList();
+  }
+
+  List<int> parseUserIdsFrom(List<QBUser?> users) {
+    List<int> userIds = [];
+    for (QBUser? user in users) {
+      userIds.add(user?.id ?? 0);
+    }
+    return userIds;
+  }
+
+  List<String> getSelectedUserIds() {
+    List<String> userIds = [];
+    for (QBUser? user in getSelectedQbUsers()) {
+      if (user != null && user.id != null) {
+        userIds.add(user.id.toString());
+      }
+    }
+    return userIds;
+  }
+
+  List<String> parseUserNamesFrom(List<QBUser?> users) {
+    List<String> userNames = [];
+    for (QBUser? user in users) {
+      userNames.add(user?.fullName ?? user?.login ?? "User");
+    }
+    return userNames;
+  }
+
+  List<String> getSelectedUserNames() {
+    List<String> userNames = [];
+    for (QBUser? user in getSelectedQbUsers()) {
+      userNames.add(user?.fullName ?? user?.login ?? "User");
+    }
+    return userNames;
   }
 
   Future<void> addVideoCallEntities(List<QBUser?> users) async {
@@ -186,9 +298,55 @@ class UsersScreenViewModel extends BaseViewModel {
     }
   }
 
-  Future<void> setDefaultStateForGettingCall() async {
-    receivedCall = false;
-    notifyListeners();
+  void subscribeToAcceptClick() async {
+    CallkitManager.subscribeToClickAcceptCall("UsersScreen", (PushNotificationEntity? message) {
+      isVideoCall = message?.isVideoCall() ?? false;
+
+      bool isExistOpponents = message != null && message.opponents != null && message.opponents!.isNotEmpty;
+      if (isExistOpponents) {
+        opponents = message.opponents ?? [];
+      }
+
+      entity = message;
+      notifyListeners();
+    });
+  }
+
+  void subscribeToRejectClick() async {
+    CallkitManager.subscribeToClickRejectCall("UsersScreen", (sessionId) async {
+      if (sessionId == null) {
+        _callManager.rejectCall();
+        return;
+      }
+      _callManager.rejectCallBySessionId(sessionId);
+    });
+  }
+
+  Future<int> getCurrentUserId() async {
+    return await _storageManager.getLoggedUserId();
+  }
+
+  Future<String> getCurrentUserName() async {
+    return await _storageManager.getNameLogin();
+  }
+
+  String getCallSessionId() {
+    try {
+      return _callManager.getCallSessionId();
+    } on PlatformException catch (e) {
+      return "";
+    }
+  }
+
+  Future<bool> pingUser(int? userId) async {
+    if (userId == null) {
+      return false;
+    }
+    try {
+      return await _usersManager.pingUser(userId);
+    } on PlatformException catch (e) {
+      return false;
+    }
   }
 
   Future<List<QBUser?>?> loadOpponents() async {
@@ -238,7 +396,7 @@ class UsersScreenViewModel extends BaseViewModel {
     sort.ascending = false;
 
     try {
-      List<QBUser?> users = await _usersManager.getUsers(_currentPage, PAGE_SIZE, sort: sort);
+      List<QBUser> users = await _usersManager.getUsers(_currentPage, PAGE_SIZE, sort: sort);
 
       _usersEntitiesFrom(users);
 
@@ -268,10 +426,10 @@ class UsersScreenViewModel extends BaseViewModel {
     }
   }
 
-  void _usersEntitiesFrom(List<QBUser?> users) async {
+  void _usersEntitiesFrom(List<QBUser> users) async {
     int currentUserId = await _storageManager.getLoggedUserId();
     for (final user in users) {
-      if (user?.id != currentUserId) {
+      if (user.id != currentUserId) {
         loadedUsersSet.add(UserEntity(false, user));
       }
     }
@@ -299,8 +457,7 @@ class UsersScreenViewModel extends BaseViewModel {
     filter.value = text;
 
     try {
-      List<QBUser?> users =
-          await _usersManager.getUsers(_currentSearchPage, PAGE_SIZE, filter: filter);
+      List<QBUser> users = await _usersManager.getUsers(_currentSearchPage, PAGE_SIZE, filter: filter);
       _usersEntitiesFrom(users);
 
       hideUsersSearching();
@@ -391,6 +548,8 @@ class UsersScreenViewModel extends BaseViewModel {
       hideError();
       isLoggingOut = true;
       notifyListeners();
+
+      await PushNotificationManager.removeAllQbPushSubscriptions();
       await _authManager.logout();
       await _storageManager.cleanCredentials();
       isLoggedIn = false;
@@ -411,14 +570,26 @@ class UsersScreenViewModel extends BaseViewModel {
   CallSubscription _createCallSubscription() {
     return CallSubscriptionImpl(
         tag: "UsersScreenViewModel",
-        onIncomingCall: (session) {
+        onIncomingCall: (session, opponents) async {
+          String? sessionId = RejectCallManager.getSessionId();
+          bool isHasActiveCall = await CallkitManager.isActiveCallKit();
+          if (sessionId == session?.id || isHasActiveCall) {
+            return;
+          }
+
           if (session?.type == QBRTCSessionTypes.VIDEO) {
             isVideoCall = true;
           } else {
             isVideoCall = false;
           }
-          receivedCall = true;
-          notifyListeners();
+
+          List<QBUser> deserializedOpponents = QBUserParser.deserializeOpponents(opponents);
+          this.opponents = deserializedOpponents;
+          callerId = session?.initiatorId;
+          setReceivedCall(true);
+        },
+        onCallEnd: () async {
+          await CallkitManager.endAllCallsInCallkit();
         },
         onError: (errorMessage) {
           _showError(errorMessage);

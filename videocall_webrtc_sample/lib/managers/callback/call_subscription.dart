@@ -1,7 +1,9 @@
 import 'package:quickblox_sdk/models/qb_rtc_session.dart';
 
 abstract class CallSubscription {
-  void onIncomingCall(QBRTCSession? session);
+  void onIncomingCall(QBRTCSession? session, String opponents);
+
+  void onIncomingCall2(QBRTCSession? session, String opponents);
 
   void onRejectCall(int opponentId);
 

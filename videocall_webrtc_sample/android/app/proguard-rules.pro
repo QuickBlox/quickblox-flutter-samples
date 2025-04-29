@@ -51,3 +51,23 @@
 
 #flutter file picker library
 -keep class androidx.lifecycle.DefaultLifecycleObserver
+
+-keep class com.google.firebase.iid.** { *; }
+-keep class java.beans.** { *; }
+-keep class org.conscrypt.** { *; }
+-keep class org.w3c.dom.bootstrap.** { *; }
+-dontwarn com.google.firebase.iid.**
+-dontwarn java.beans.**
+-dontwarn org.conscrypt.**
+-dontwarn org.w3c.dom.bootstrap.**
+
+# Firebase Messaging
+-keep class com.google.firebase.** { *; }
+-keep class com.google.android.gms.** { *; }
+ -keep class com.hiennv.flutter_callkit_incoming.** { *; }
+
+# QuickBlox
+-keep class com.quickblox.** { *; }
+-keep class com.google.gson.** { *; }
+-keepattributes Signature
+-keepattributes RuntimeVisibleAnnotations

@@ -6,6 +6,8 @@ import 'package:videocall_webrtc_sample/managers/storage_manager.dart';
 import 'package:videocall_webrtc_sample/presentation/base_view_model.dart';
 import 'package:videocall_webrtc_sample/presentation/utils/error_parser.dart';
 
+import '../../../managers/push_notification_manager.dart';
+
 class LoginScreenViewModel extends BaseViewModel {
   static const MIN_LENGTH = 3;
   static const MAX_LENGTH_LOGIN = 50;
@@ -25,6 +27,8 @@ class LoginScreenViewModel extends BaseViewModel {
       QBLoginResult qbLoginResult = await _authManager.login(userLogin, userPassword);
 
       if (qbLoginResult.qbUser?.id != null) {
+        await trySubscribeToQbPushNotifications();
+
         _storageManager.saveUserId(qbLoginResult.qbUser!.id!);
         _storageManager.saveUserLogin(userLogin);
         String? name = qbLoginResult.qbUser?.fullName ?? qbLoginResult.qbUser?.login;
@@ -36,6 +40,13 @@ class LoginScreenViewModel extends BaseViewModel {
     } on PlatformException catch (e) {
       hideLoading();
       showError(ErrorParser.parseFrom(e));
+    }
+  }
+
+  Future<void> trySubscribeToQbPushNotifications() async {
+    String? token = await PushNotificationManager.getDeviceToken();
+    if (token != null && token.isNotEmpty) {
+      await PushNotificationManager.subscribeToQbPushNotifications(token);
     }
   }
 

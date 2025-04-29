@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quickblox_sdk/models/qb_user.dart';
@@ -17,6 +19,8 @@ import 'package:videocall_webrtc_sample/presentation/screens/users/widgets/users
 import 'package:videocall_webrtc_sample/presentation/screens/widgets/decorated_app_bar.dart';
 import 'package:videocall_webrtc_sample/presentation/utils/debouncer.dart';
 
+import '../../../entities/push_notification_entity.dart';
+import '../../../managers/callkit_manager.dart';
 import '../../utils/notification_utils.dart';
 import '../call/video/incoming/incoming_video_call_screen.dart';
 
@@ -26,8 +30,7 @@ class UsersScreen extends StatefulWidget {
   }
 
   static showAndClearStack(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
-        context, MaterialPageRoute(builder: (_) => const UsersScreen()), (_) => false);
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const UsersScreen()), (_) => false);
   }
 
   const UsersScreen({super.key});
@@ -79,7 +82,7 @@ class _UsersScreenState extends State<UsersScreen> {
     }, onLogOut: () {
       _showLogoutDialog();
     }, onAudioCall: () async {
-      List<QBUser?> selectedUsers = _viewModel.getSelectedQbUsers();
+      List<QBUser> selectedUsers = _viewModel.getSelectedQbUsers();
 
       if (selectedUsers.isEmpty) {
         _showErrorSnackbar("To make a call you need to select at least one opponent.", context);
@@ -87,13 +90,13 @@ class _UsersScreenState extends State<UsersScreen> {
       }
 
       await _viewModel.checkAudioPermissions();
-      await _viewModel.startAudioCall();
+      await _viewModel.startAudioCallAndSendPushIfNeed();
       setState(() {
         _viewModel.clearSelectedUsers();
       });
       _showAudioCallScreen(selectedUsers);
     }, onVideoCall: () async {
-      List<QBUser?> selectedUsers = _viewModel.getSelectedQbUsers();
+      List<QBUser> selectedUsers = _viewModel.getSelectedQbUsers();
 
       if (selectedUsers.isEmpty) {
         _showErrorSnackbar("To make a call you need to select at least one opponent.", context);
@@ -168,14 +171,12 @@ class _UsersScreenState extends State<UsersScreen> {
                                 if (index == qbUsers.length - 1) {
                                   return Column(
                                     children: [
-                                      UsersListItem(
-                                          qbUsers[index], _viewModel.handleChangedSelectedUsers),
+                                      UsersListItem(qbUsers[index], _viewModel.handleChangedSelectedUsers),
                                       const UsersListLoadingItem(),
                                     ],
                                   );
                                 }
-                                return UsersListItem(
-                                    qbUsers[index], _viewModel.handleChangedSelectedUsers);
+                                return UsersListItem(qbUsers[index], _viewModel.handleChangedSelectedUsers);
                               },
                             ));
                   },
@@ -193,15 +194,28 @@ class _UsersScreenState extends State<UsersScreen> {
                   selector: (_, viewModel) => viewModel.receivedCall,
                   builder: (_, isGettingCall, __) {
                     if (isGettingCall) {
-                      if (!_viewModel.isVideoCall) {
-                        _viewModel.checkAudioPermissions().then(
-                            (value) => {if (value) _loadOpponentsAndShowIncomingAudioCallScreen()});
+                      if (_viewModel.isVideoCall) {
+                        _checkVideoPermissionsAndShowCallKit();
                       } else {
-                        _viewModel
-                            .checkVideoPermissions()
-                            .then((value) => _loadOpponentsAndShowIncomingVideoCallScreen());
+                        _checkAudioPermissionsAndShowCallKit();
                       }
                     }
+                    return const SizedBox.shrink();
+                  }),
+              Selector<UsersScreenViewModel, PushNotificationEntity?>(
+                  selector: (_, viewModel) => viewModel.entity,
+                  builder: (_, entity, __) {
+                    if (entity != null) {
+                      // bool isFromBackground = entity.senderId == null && entity.senderName == null;
+                      // bool isForeground = DependencyImpl.getInstance().getLifecycleManager().isForeground;
+
+                      if (_viewModel.isVideoCall) {
+                        _showIncomingVideoCallScreen(_viewModel.opponents);
+                      } else {
+                        _showIncomingAudioCallScreen(_viewModel.opponents);
+                      }
+                    }
+
                     return const SizedBox.shrink();
                   }),
             ],
@@ -232,54 +246,61 @@ class _UsersScreenState extends State<UsersScreen> {
     });
   }
 
-  void _showAudioCallScreen(List<QBUser?> users) {
+  void _showAudioCallScreen(List<QBUser> users) {
     NotificationUtils.hideSnackBar(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (_) => AudioCallScreen(
-                    isIncoming: false,
-                    opponents: users,
-                  ))).then((result) {
-        _viewModel.receivedCall = false;
-      });
+      AudioCallScreen.showAndClearStack(context, false, users);
+      _viewModel.setReceivedCall(false);
     });
   }
 
-  void _showVideoCallScreen(List<QBUser?> users) {
+  void _showVideoCallScreen(List<QBUser> users) {
     NotificationUtils.hideSnackBar(context);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (_) => VideoCallScreen(
-                  isIncoming: false, callUsers: users))).then((result) {
-        _viewModel.receivedCall = false;
-      });
+      VideoCallScreen.showAndClearStack(context, false, users);
+      _viewModel.setReceivedCall(false);
     });
   }
 
-  void _loadOpponentsAndShowIncomingAudioCallScreen() async {
-    NotificationUtils.hideSnackBar(context);
-    List<QBUser?>? opponents = await _viewModel.loadOpponents();
-    if (opponents == null) {
-      return;
-    }
-    IncomingAudioCallScreen.show(context, opponents: opponents).then((result) {
-      _viewModel.setDefaultStateForGettingCall();
+  void _showIncomingAudioCallScreen(List<QBUser> opponents) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      IncomingAudioCallScreen.showAndClearStack(context, opponents: opponents);
+      _viewModel.setReceivedCall(false);
     });
   }
 
-  void _loadOpponentsAndShowIncomingVideoCallScreen() async {
-    NotificationUtils.hideSnackBar(context);
-    List<QBUser?>? users = await _viewModel.loadCallUsers();
-    if (users == null) {
-      return;
-    }
-    await _viewModel.addVideoCallEntities(users);
-    IncomingVideoCallScreen.show(context, users).then((result) {
-      _viewModel.setDefaultStateForGettingCall();
+  void _showIncomingVideoCallScreen(List<QBUser> opponents) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      IncomingVideoCallScreen.showAndClearStack(context, opponents);
+      _viewModel.setReceivedCall(false);
+    });
+  }
+
+  void _showCallKit(bool isVideoCall) {
+    PushNotificationEntity? entity = PushNotificationEntity(
+        conferenceType: isVideoCall ? ConferenceType.VIDEO : ConferenceType.AUDIO, opponents: _viewModel.opponents);
+
+    String sessionId = _viewModel.getCallSessionId();
+    CallkitManager.showIncomingCall(jsonEncode(entity.toJson()), _viewModel.opponents, isVideoCall, true, sessionId,
+        _viewModel.callerId.toString());
+    _viewModel.setReceivedCall(false);
+    _viewModel.callerId = null;
+  }
+
+  void _checkVideoPermissionsAndShowCallKit() {
+    _viewModel.checkVideoPermissions().then((value) {
+      if (value) {
+        _showCallKit(_viewModel.isVideoCall);
+      }
+    });
+  }
+
+  void _checkAudioPermissionsAndShowCallKit() {
+    _viewModel.checkAudioPermissions().then((value) {
+      if (value) {
+        _showCallKit(_viewModel.isVideoCall);
+      }
     });
   }
 }

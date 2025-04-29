@@ -41,9 +41,15 @@ class CallManager {
     _callSubscriptions.remove(callSubscription);
   }
 
-  void _notifyIncome(QBRTCSession? session) {
+  void _notifyIncome(QBRTCSession? session, String opponents) {
     for (var callSubscription in _callSubscriptions) {
-      callSubscription.onIncomingCall(session);
+      callSubscription.onIncomingCall(session, opponents);
+    }
+  }
+
+  void _notifyIncome2(QBRTCSession? session, String opponents) {
+    for (var callSubscription in _callSubscriptions) {
+      callSubscription.onIncomingCall2(session, opponents);
     }
   }
 
@@ -104,6 +110,10 @@ class CallManager {
     return _session != null;
   }
 
+  String getCallSessionId() {
+    return _session?.id ?? "";
+  }
+
   Future<void> enableAudio(bool enable) async {
     if (_session != null) {
       String sessionId = _session?.id ?? "";
@@ -143,14 +153,14 @@ class CallManager {
     }
   }
 
-  Future<void> startAudioCall(List<QBUser?> users) async {
+  Future<void> startAudioCall(List<QBUser?> users, {Map<String, Object>? userInfo}) async {
     List<int> userIds = _getUserIdsFrom(users);
-    await _createSession(userIds, CallTypes.AUDIO);
+    await _createSession(userIds, CallTypes.AUDIO, userInfo: userInfo);
   }
 
-  Future<void> startVideoCall(List<QBUser?> users) async {
+  Future<void> startVideoCall(List<QBUser?> users, {Map<String, Object>? userInfo}) async {
     List<int> userIds = _getUserIdsFrom(users);
-    await _createSession(userIds, CallTypes.VIDEO);
+    await _createSession(userIds, CallTypes.VIDEO, userInfo: userInfo);
   }
 
   List<int> _getUserIdsFrom(List<QBUser?> users) {
@@ -163,9 +173,10 @@ class CallManager {
     return list;
   }
 
-  Future<QBRTCSession?> _createSession(List<int> opponentsIds, CallTypes callType) async {
+  Future<QBRTCSession?> _createSession(List<int> opponentsIds, CallTypes callType,
+      {Map<String, Object>? userInfo}) async {
     int sessionCallType = _parseCallType(callType);
-    QBRTCSession? session = await QB.webrtc.call(opponentsIds, sessionCallType);
+    QBRTCSession? session = await QB.webrtc.call(opponentsIds, sessionCallType, userInfo: userInfo);
     _session = session;
     return session;
   }
@@ -183,7 +194,13 @@ class CallManager {
     if (_session != null) {
       String sessionId = _session?.id ?? "";
       await QB.webrtc.reject(sessionId);
+      _session = null;
     }
+  }
+
+  Future<void> rejectCallBySessionId(String sessionId) async {
+    await QB.webrtc.reject(sessionId);
+    _session = null;
   }
 
   Future<void> acceptCall() async {
@@ -211,17 +228,22 @@ class CallManager {
 
   Future<void> initAndSubscribeEvents() async {
     await _setRTCConfigs();
-    await QB.webrtc.init();
+    await init();
     await _subscribeEvents();
   }
 
+  Future<void> init() async {
+    await QB.webrtc.init();
+  }
+
   Future<void> _setRTCConfigs() async {
-    await QB.rtcConfig.setAnswerTimeInterval(30);
-    await QB.rtcConfig.setDialingTimeInterval(15);
+    await QB.rtcConfig.setAnswerTimeInterval(45);
+    await QB.rtcConfig.setDialingTimeInterval(3);
   }
 
   Future<void> _subscribeEvents() async {
     await _subscribeIncoming();
+    await _subscribeIncoming2();
     await _subscribeHangUp();
     await _subscribeCallEnd();
     await _subscribeAccept();
@@ -233,11 +255,26 @@ class CallManager {
   Future<void> _subscribeIncoming() async {
     _incomeCallSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL, (data) async {
       final session = _parseSessionFrom(data);
-      if (isActiveCall()) {
+      if (isActiveCall() && _session?.id != session?.id) {
         await QB.webrtc.reject(session!.id!);
+        _session = null;
       } else {
+        Map<dynamic, dynamic> payloadMap = Map<dynamic, dynamic>.from(data["payload"]);
+        String opponents = payloadMap["userInfo"]["opponents"];
         _session = session;
-        _notifyIncome(_session);
+        _notifyIncome(_session, opponents);
+      }
+    }, onErrorMethod: (e) => _notifyError(e.toString()));
+  }
+
+  Future<void> _subscribeIncoming2() async {
+    _incomeCallSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL_V2, (data) async {
+      final session = _parseSessionFrom(data);
+      if (_session == null || _session?.id == session?.id) {
+        Map<dynamic, dynamic> payloadMap = Map<dynamic, dynamic>.from(data["payload"]);
+        String opponents = payloadMap["userInfo"]["opponents"];
+        _session = session;
+        _notifyIncome2(_session, opponents);
       }
     }, onErrorMethod: (e) => _notifyError(e.toString()));
   }
@@ -251,8 +288,7 @@ class CallManager {
   }
 
   Future<void> _subscribeCallEnd() async {
-    _callEndSubscription =
-        await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL_END, (data) async {
+    _callEndSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.CALL_END, (data) async {
       final session = _parseSessionFrom(data);
       if (session?.id != _session?.id) {
         return;
@@ -309,8 +345,7 @@ class CallManager {
   }
 
   Future<void> _subscribeVideoTracks() async {
-    _videoTracksSubscription =
-        await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.RECEIVED_VIDEO_TRACK, (data) {
+    _videoTracksSubscription = await QB.webrtc.subscribeRTCEvent(QBRTCEventTypes.RECEIVED_VIDEO_TRACK, (data) {
       Map<dynamic, dynamic> payloadMap = Map<dynamic, dynamic>.from(data["payload"]);
 
       int opponentId = payloadMap["userId"];

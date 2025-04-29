@@ -6,6 +6,7 @@ import 'package:videocall_webrtc_sample/managers/auth_manager.dart';
 import 'package:videocall_webrtc_sample/managers/storage_manager.dart';
 import 'package:videocall_webrtc_sample/presentation/base_view_model.dart';
 
+import '../../../managers/push_notification_manager.dart';
 import '../../../managers/settings_manager.dart';
 import '../../utils/error_parser.dart';
 
@@ -18,6 +19,7 @@ class SplashScreenViewModel extends BaseViewModel {
 
   Future<void> initQBSDK() async {
     try {
+      final SettingsManager _settingsManager = DependencyImpl.getInstance().getSettingsManager();
       await _settingsManager.init(APPLICATION_ID, AUTH_KEY, AUTH_SECRET, ACCOUNT_KEY);
 
       String url = ICE_SEVER_URL;
@@ -61,10 +63,19 @@ class SplashScreenViewModel extends BaseViewModel {
   Future<void> _login(String userLogin, String userPassword) async {
     QBLoginResult qbLoginResult = await _authManager.login(userLogin, userPassword);
     if (qbLoginResult.qbUser?.id != null) {
+      await trySubscribeToQbPushNotifications();
+
       _storageManager.saveUserId(qbLoginResult.qbUser!.id!);
       isLoggedIn = true;
     } else {
       isLoggedIn = false;
+    }
+  }
+
+  Future<void> trySubscribeToQbPushNotifications() async {
+    String? token = await PushNotificationManager.getDeviceToken();
+    if (token != null && token.isNotEmpty) {
+      await PushNotificationManager.subscribeToQbPushNotifications(token);
     }
   }
 }

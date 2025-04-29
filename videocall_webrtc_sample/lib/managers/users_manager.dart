@@ -5,13 +5,12 @@ import 'package:quickblox_sdk/quickblox_sdk.dart';
 import 'package:quickblox_sdk/users/constants.dart';
 
 class UsersManager {
-  Future<List<QBUser?>> getUsers(int page, int perPage,
-      {QBSort? sort, QBFilter? filter}) async {
-    return QB.users
-        .getUsers(sort: sort, page: page, perPage: perPage, filter: filter);
+  Future<List<QBUser>> getUsers(int page, int perPage, {QBSort? sort, QBFilter? filter}) async {
+    List<QBUser?> users = await QB.users.getUsers(sort: sort, page: page, perPage: perPage, filter: filter);
+    return users.whereType<QBUser>().toList();
   }
 
-  Future<List<QBUser?>> getUsersByIds(List<int>? userIds) async {
+  Future<List<QBUser>> getUsersByIds(List<int>? userIds) async {
     String? filterValue = userIds?.join(",");
     QBFilter filter = QBFilter();
     filter.field = QBUsersFilterFields.ID;
@@ -19,6 +18,11 @@ class UsersManager {
     filter.value = filterValue;
     filter.type = QBUsersFilterTypes.STRING;
 
-    return await QB.users.getUsers(filter: filter);
+    List<QBUser?> users = await QB.users.getUsers(filter: filter);
+    return users.whereType<QBUser>().toList();
+  }
+
+  Future<bool> pingUser(int userId) async {
+    return QB.chat.pingUser(userId);
   }
 }

@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 
 class StorageManager {
   static const int _NOT_SAVED_USER_ID = -1;
@@ -9,10 +11,13 @@ class StorageManager {
   static const String _USER_NAME_KEY = "user_name_key";
   static const String _USER_PASSWORD_KEY = "user_password_key";
 
-   Box<dynamic>? _hiveBox;
+  Box<dynamic>? _hiveBox;
 
   Future<void> init() async {
-    await Hive.initFlutter();
+    Directory dir = await getApplicationDocumentsDirectory();
+
+    String path = dir.path;
+    Hive.init(path);
     _hiveBox = await Hive.openBox("storage");
   }
 
