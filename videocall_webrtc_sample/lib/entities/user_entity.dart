@@ -2,11 +2,11 @@ import 'package:quickblox_sdk/models/qb_user.dart';
 
 class UserEntity {
   bool selected;
-  final QBUser? user;
+  QBUser user;
 
-  int? get userId => user?.id;
+  int? get userId => user.id;
 
-  String? get name => user?.fullName ?? user?.login;
+  String? get name => user.fullName ?? user.login;
 
   UserEntity(this.selected, this.user);
 

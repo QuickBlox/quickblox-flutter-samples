@@ -25,9 +25,9 @@ class UserNames extends StatelessWidget {
   }
 
   Widget _buildPluralityUsersNames() {
-    String other = users.length == 2 ? "other" : "others";
+    String other = users.length - 1 == 2 ? "other" : "others";
 
-    if (users.length > 1) {
+    if (users.length - 1 > 1) {
       return Text(' and ${users.length - 1} $other', style: _buildUsernameTextStyle());
     } else {
       return const SizedBox.shrink();

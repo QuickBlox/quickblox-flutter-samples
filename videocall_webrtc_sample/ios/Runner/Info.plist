@@ -39,11 +39,17 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
-	<array>
-		<string>processing</string>
-		<string>remote-notification</string>
-		<string>voip</string>
-	</array>
+    <array>
+    <string>remote-notification</string>
+    <string>voip</string>
+    <string>audio</string>
+    <string>processing</string>
+    <string>fetch</string>
+    </array>
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+    <string>com.videocall.processing</string>
+    </array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

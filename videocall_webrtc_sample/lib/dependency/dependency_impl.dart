@@ -2,11 +2,13 @@ import 'package:videocall_webrtc_sample/dependency/dependency_exception.dart';
 import 'package:videocall_webrtc_sample/managers/auth_manager.dart';
 import 'package:videocall_webrtc_sample/managers/call_manager.dart';
 import 'package:videocall_webrtc_sample/managers/chat_manager.dart';
+import 'package:videocall_webrtc_sample/managers/push_notification_manager.dart';
 import 'package:videocall_webrtc_sample/managers/ringtone_manager.dart';
 import 'package:videocall_webrtc_sample/managers/settings_manager.dart';
 import 'package:videocall_webrtc_sample/managers/storage_manager.dart';
 import 'package:videocall_webrtc_sample/managers/users_manager.dart';
 
+import '../managers/lifecycle_manage.dart';
 import '../managers/permission_manager.dart';
 import 'dependency.dart';
 
@@ -19,14 +21,16 @@ class DependencyImpl implements Dependency {
     return _instance ??= DependencyImpl._();
   }
 
-  AuthManager? _authManager;
-  ChatManager? _chatManager;
-  SettingsManager? _settingsManager;
-  StorageManager? _storageManager;
-  UsersManager? _usersManager;
-  CallManager? _callManager;
-  PermissionManager? _permissionManager;
-  RingtoneManager? _ringtoneManager;
+  static AuthManager? _authManager;
+  static ChatManager? _chatManager;
+  static SettingsManager? _settingsManager;
+  static StorageManager? _storageManager;
+  static UsersManager? _usersManager;
+  static CallManager? _callManager;
+  static PermissionManager? _permissionManager;
+  static RingtoneManager? _ringtoneManager;
+  static PushNotificationManager? _pushNotificationManager;
+  static LifecycleManager? _lifecycleManager;
 
   @override
   Future<void> init() async {
@@ -36,10 +40,12 @@ class DependencyImpl implements Dependency {
     _storageManager = StorageManager();
     await _storageManager?.init();
 
+    _pushNotificationManager = PushNotificationManager();
     _usersManager = UsersManager();
     _callManager = CallManager();
     _permissionManager = PermissionManager();
     _ringtoneManager = RingtoneManager();
+    _lifecycleManager = LifecycleManager();
   }
 
   void _throwDIException(String text) {
@@ -111,6 +117,14 @@ class DependencyImpl implements Dependency {
   }
 
   @override
+  LifecycleManager getLifecycleManager() {
+    if (_lifecycleManager == null) {
+      _throwDIException("LifecycleManager");
+    }
+    return _lifecycleManager!;
+  }
+
+  @override
   void setAuthManager(AuthManager authManager) {
     _authManager = authManager;
   }
@@ -148,5 +162,20 @@ class DependencyImpl implements Dependency {
   @override
   void setWebRTCManager(CallManager callManager) {
     _callManager = callManager;
+  }
+
+  @override
+  PushNotificationManager getPushNotificationManager() {
+    return _pushNotificationManager!;
+  }
+
+  @override
+  void setPushNotificationManager(PushNotificationManager pushNotificationManager) {
+    _pushNotificationManager = pushNotificationManager;
+  }
+
+  @override
+  void setLifecycleManager(LifecycleManager lifecycleManager) {
+    _lifecycleManager = lifecycleManager;
   }
 }

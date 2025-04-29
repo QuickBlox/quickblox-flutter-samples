@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quickblox_sdk/models/qb_user.dart';
@@ -9,16 +7,20 @@ import 'package:videocall_webrtc_sample/presentation/screens/call/video/video_ca
 import 'package:videocall_webrtc_sample/presentation/screens/call/video/video_call/widgets/video_tracks_widget.dart';
 
 import '../../../../utils/notification_utils.dart';
+import '../../../users/users_screen.dart';
 
 class VideoCallScreen extends StatelessWidget {
-  static show(BuildContext context, bool isIncoming, List<QBUser?> callUsers) {
+  static show(BuildContext context, bool isIncoming, List<QBUser> callUsers) {
     return Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (_) => VideoCallScreen(isIncoming: isIncoming, callUsers: callUsers)));
+        context, MaterialPageRoute(builder: (_) => VideoCallScreen(isIncoming: isIncoming, callUsers: callUsers)));
   }
 
-  final List<QBUser?> callUsers;
+  static showAndClearStack(BuildContext context, bool isIncoming, List<QBUser> callUsers) {
+    Navigator.pushAndRemoveUntil(context,
+        MaterialPageRoute(builder: (_) => VideoCallScreen(isIncoming: isIncoming, callUsers: callUsers)), (_) => false);
+  }
+
+  final List<QBUser> callUsers;
   final bool isIncoming;
 
   final VideoCallScreenViewModel _viewModel = VideoCallScreenViewModel();
@@ -52,21 +54,31 @@ class VideoCallScreen extends StatelessWidget {
                         _viewModel.enableVideo(isNeedDisable);
                       },
                       onSwitchCamera: () => _viewModel.switchCamera(),
-                      onEndCall: () => _viewModel.hangUpCall()),
-                  Selector<VideoCallScreenViewModel, String?>(
-                      selector: (_, viewModel) => viewModel.opponentActionMessage,
-                      builder: (_, message, __) {
-                        if (message?.isNotEmpty ?? false) {
-                          NotificationUtils.showResult(context, message!);
-                        }
-                        return const SizedBox.shrink();
+                      onEndCall: () {
+                        _viewModel.hangUpCall();
                       }),
+                  Selector<VideoCallScreenViewModel, String?>(
+                    selector: (_, viewModel) => viewModel.opponentActionMessage,
+                    builder: (_, message, __) {
+                      if (message?.isNotEmpty ?? false) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(
+                            duration: const Duration(seconds: 1),
+                            content: Text(message!),
+                          ));
+                        });
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
                   Selector<VideoCallScreenViewModel, bool>(
                     selector: (_, viewModel) => viewModel.isEndCall,
                     builder: (_, isCallEnd, __) {
                       if (isCallEnd) {
-                        WidgetsBinding.instance
-                            .addPostFrameCallback((_) => Navigator.of(context).pop());
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Navigator.of(context).pop();
+                          UsersScreen.showAndClearStack(context);
+                        });
                       }
                       return const SizedBox.shrink();
                     },

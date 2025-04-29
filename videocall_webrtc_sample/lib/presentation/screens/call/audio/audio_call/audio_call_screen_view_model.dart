@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:quickblox_sdk/models/qb_user.dart';
 import 'package:videocall_webrtc_sample/dependency/dependency_impl.dart';
 import 'package:videocall_webrtc_sample/managers/call_manager.dart';
+import 'package:videocall_webrtc_sample/managers/callkit_manager.dart';
 
 import '../../../../../managers/callback/call_subscription.dart';
 import '../../../../../managers/callback/call_subscription_impl.dart';
@@ -15,6 +16,7 @@ class AudioCallScreenViewModel extends BaseViewModel {
   final RingtoneManager _ringtoneManager = DependencyImpl.getInstance().getRingtoneManager();
 
   List<QBUser?>? _opponents;
+
   List<QBUser?>? get opponents => _opponents;
 
   bool _isStartedCall = false;
@@ -50,7 +52,9 @@ class AudioCallScreenViewModel extends BaseViewModel {
   CallSubscription _createCallSubscription() {
     return CallSubscriptionImpl(
         tag: "AudioCallScreenViewModel",
-        onCallEnd: () {
+        onCallEnd: () async {
+          await CallkitManager.endAllCallsInCallkit();
+
           _ringtoneManager.release();
           _isEndCall = true;
           notifyListeners();
@@ -112,9 +116,20 @@ class AudioCallScreenViewModel extends BaseViewModel {
 
   Future<void> hangUpCall() async {
     try {
+      await CallkitManager.endAllCallsInCallkit();
+
       await _callManager.hangUpCall();
     } on PlatformException catch (e) {
       _showError(ErrorParser.parseFrom(e));
     }
+  }
+
+  List<String> getOpponentsNames() {
+    List<String> names = [];
+
+    for (QBUser? opponent in _opponents!) {
+      names.add(opponent?.fullName ?? "");
+    }
+    return names;
   }
 }

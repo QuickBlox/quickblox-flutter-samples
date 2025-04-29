@@ -95,9 +95,11 @@ class NotificationUtils {
   }
 
   static void showResult(BuildContext context, String text) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ScaffoldMessenger.maybeOf(context)
-          ?.showSnackBar(SnackBar(duration: const Duration(seconds: 1), content: Text(text)));
-    });
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger != null) {
+      messenger.showSnackBar(
+        SnackBar(duration: const Duration(seconds: 1), content: Text(text)),
+      );
+    }
   }
 }

@@ -7,8 +7,7 @@ class PermissionManager {
     bool isAllPermissionsGranted = true;
 
     if (microphoneDenied || bluetoothDenied) {
-      Map<Permission, PermissionStatus> statuses =
-          await [Permission.bluetoothConnect, Permission.microphone].request();
+      Map<Permission, PermissionStatus> statuses = await [Permission.bluetoothConnect, Permission.microphone].request();
       isAllPermissionsGranted = _isAllPermissionsGranted(statuses);
     }
 

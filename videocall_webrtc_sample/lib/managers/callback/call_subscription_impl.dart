@@ -5,7 +5,8 @@ import 'call_subscription.dart';
 class CallSubscriptionImpl implements CallSubscription {
   CallSubscriptionImpl({
     required String tag,
-    void Function(QBRTCSession? session)? onIncomingCall,
+    void Function(QBRTCSession? session, String opponents)? onIncomingCall,
+    void Function(QBRTCSession? session, String opponents)? onIncomingCall2,
     void Function(int opponentId)? onCallRejected,
     void Function(int opponentId)? onCallAccept,
     void Function(int opponentId)? onHangup,
@@ -15,6 +16,7 @@ class CallSubscriptionImpl implements CallSubscription {
     void Function(String error)? onError,
   })  : _tag = tag,
         _onIncomingCall = onIncomingCall,
+        _onIncomingCall2 = onIncomingCall2,
         _onCallRejected = onCallRejected,
         _onCallAccept = onCallAccept,
         _onHangup = onHangup,
@@ -24,7 +26,8 @@ class CallSubscriptionImpl implements CallSubscription {
         _onError = onError;
 
   final String _tag;
-  final void Function(QBRTCSession? session)? _onIncomingCall;
+  final void Function(QBRTCSession? session, String opponentsNames)? _onIncomingCall;
+  final void Function(QBRTCSession? session, String opponentsNames)? _onIncomingCall2;
   final void Function(int opponentId)? _onCallRejected;
   final void Function(int opponentId)? _onCallAccept;
   final void Function(int opponentId)? _onHangup;
@@ -34,9 +37,17 @@ class CallSubscriptionImpl implements CallSubscription {
   final void Function(String error)? _onError;
 
   @override
-  void onIncomingCall(QBRTCSession? session) {
+  void onIncomingCall(QBRTCSession? session, String opponents) {
     if (_onIncomingCall != null) {
-      _onIncomingCall!(session);
+      _onIncomingCall!(session, opponents);
+    }
+  }
+
+
+  @override
+  void onIncomingCall2(QBRTCSession? session, String opponents) {
+    if (_onIncomingCall2 != null) {
+      _onIncomingCall2!(session, opponents);
     }
   }
 
