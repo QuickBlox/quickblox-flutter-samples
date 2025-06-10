@@ -14,6 +14,43 @@ QuickBlox Flutter VideoChat Sample provides next functionality:
 - Make audio calls
 - Make video calls
 
+# Video
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <strong>iOS</strong><br/>
+      <img src="assets/screenshots/ios-video-call.gif" width="190" height="400"/>
+    </td>
+    <td style="width: 50px;"></td>
+    <td align="center">
+      <strong>Android</strong><br/>
+      <img src="assets/screenshots/android-video-call.gif" width="190" height="400"/>
+    </td>
+  </tr>
+</table>
+
+# Screenshots
+
+## IOS
+
+<p>
+  <img src="assets/screenshots/ios-enter.jpeg" width="190" height="400"/>
+  <img src="assets/screenshots/ios-select-users.jpeg" width="190" height="400"/>
+  <img src="assets/screenshots/ios-choose-type-call.jpeg" width="190" height="400"/>
+  <img src="assets/screenshots/ios-video-call.jpeg" width="190" height="400"/>
+  <img src="assets/screenshots/ios-audio-call.jpeg" width="190" height="400"/>
+</p>
+
+## Android
+<p>
+<img src="assets/screenshots/android-enter.jpg" width="190" height="400"/>
+  <img src="assets/screenshots/android-select-users.jpg" width="190" height="400"/>
+  <img src="assets/screenshots/android-choose-type-call.jpg" width="190" height="400"/>
+  <img src="assets/screenshots/android-video-call.jpg" width="190" height="400"/>
+  <img src="assets/screenshots/android-audio-call.jpg" width="190" height="400"/>
+</p>
+
 # Get application credentials
 
 QuickBlox application includes everything that brings messaging right into your application - chat, video calling, users, push notifications, etc. To create a     QuickBlox application, follow the steps below:
