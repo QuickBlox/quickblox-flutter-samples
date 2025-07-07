@@ -56,7 +56,7 @@ class FirebaseManager {
   static Future<String> getToken() async {
     String? token = await FirebaseMessaging.instance.getToken();
     if (_isNotCorrectToken(token)) {
-      //TODO: change to some specific exception when method will be moved into data layer
+      //TODO: change to some specific exception and handle it
       throw Exception('Failed to get token');
     }
 
